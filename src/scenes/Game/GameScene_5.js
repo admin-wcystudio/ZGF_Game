@@ -27,12 +27,10 @@ export class GameScene_5 extends BaseGameScene {
         this.load.image('game5_npc_box_mainstreet_03', `${path}game5_npc_box3.png`);
         this.load.image('game5_npc_box_win', `${path}game5_npc_box4.png`);
         this.load.image('game5_npc_box_tryagain', `${path}game5_npc_box5.png`);
-        this.load.image('game5_select_area', `${path}game5_select_area.png`);
 
         for (let i = 1; i <= 3; i++) {
             this.load.image(`game5_q${i}`, `${path}game5_q${i}.png`);
             this.load.image(`game5_q${i}a_correct_answer1`, `${path}game5_q${i}a_correct_answer1.png`);
-            this.load.image(`game5_q${i}a_fail_answer1`, `${path}game5_q${i}a_fail_answer1.png`);
             this.load.image(`game5_q${i}a_fail_answer2`, `${path}game5_q${i}a_fail_answer2.png`);
             this.load.image(`game5_q${i}a_fail_answer3`, `${path}game5_q${i}a_fail_answer3.png`);
             this.load.image(`game5_q${i}a_fill_answer1`, `${path}game5_q${i}a_fill_answer1.png`);
@@ -41,7 +39,6 @@ export class GameScene_5 extends BaseGameScene {
             this.load.image(`game5_q${i}a_select_area`, `${path}game5_q${i}a_select_area.png`);
 
             this.load.image(`game5_q${i}b_correct_answer1`, `${path}game5_q${i}b_correct_answer1.png`);
-            this.load.image(`game5_q${i}b_fail_answer1`, `${path}game5_q${i}b_fail_answer1.png`);
             this.load.image(`game5_q${i}b_fail_answer2`, `${path}game5_q${i}b_fail_answer2.png`);
             this.load.image(`game5_q${i}b_fail_answer3`, `${path}game5_q${i}b_fail_answer3.png`);
             this.load.image(`game5_q${i}b_fill_answer1`, `${path}game5_q${i}b_fill_answer1.png`);
@@ -59,6 +56,8 @@ export class GameScene_5 extends BaseGameScene {
 
 
         this.spawnPositions = [
+            { x: this.centerX - 800, y: this.centerY - 200 },
+            { x: this.centerX + 800, y: this.centerY - 200 },
             { x: this.centerX - 800, y: this.centerY },
             { x: this.centerX + 800, y: this.centerY },
             { x: this.centerX - 800, y: this.centerY + 200 },
@@ -66,6 +65,7 @@ export class GameScene_5 extends BaseGameScene {
         ];
 
         this.currentIndex = 1;
+
 
         // Now call initGame which will call setupGameObjects
         this.initGame('game5_bg', 'game5_description', true, false, {
@@ -75,6 +75,8 @@ export class GameScene_5 extends BaseGameScene {
             isContinuousTimer: true,
             sceneIndex: 3
         });
+
+        this.gameUI.descriptionPanel.setVisible(false);
 
     }
 
@@ -94,18 +96,42 @@ export class GameScene_5 extends BaseGameScene {
         this.choices = [
             {
                 q: 1,
-                answers: ['game5_q1_correct_answer1', 'game5_q1_correct_answer2', 'game5_q1_fail_answer1', 'game5_q1_fail_answer2'],
-                fillAnswers: ['game5_q1_fill_answer1', 'game5_q1_fill_answer4', 'game5_q1_fill_answer3', 'game5_q1_fill_answer2']
+                answers: [
+                    'game5_q1a_correct_answer1', 'game5_q1b_correct_answer1',
+                    'game5_q1a_fail_answer2', 'game5_q1a_fail_answer3',
+                    'game5_q1b_fail_answer2', 'game5_q1b_fail_answer3'
+                ],
+                fillAnswers: [
+                    'game5_q1a_fill_answer1', 'game5_q1b_fill_answer1',
+                    'game5_q1a_fill_answer2', 'game5_q1a_fill_answer3',
+                    'game5_q1b_fill_answer2', 'game5_q1b_fill_answer3'
+                ]
             },
             {
                 q: 2,
-                answers: ['game5_q2_correct_answer1', 'game5_q2_fail_answer1', 'game5_q2_fail_answer2', 'game5_q2_fail_answer3'],
-                fillAnswers: ['game5_q2_fill_answer1', 'game5_q2_fill_answer2', 'game5_q2_fill_answer3', 'game5_q2_fill_answer4']
+                answers: [
+                    'game5_q2a_correct_answer1', 'game5_q2b_correct_answer1',
+                    'game5_q2a_fail_answer2', 'game5_q2a_fail_answer3',
+                    'game5_q2b_fail_answer2', 'game5_q2b_fail_answer3'
+                ],
+                fillAnswers: [
+                    'game5_q2a_fill_answer1', 'game5_q2b_fill_answer1',
+                    'game5_q2a_fill_answer2', 'game5_q2a_fill_answer3',
+                    'game5_q2b_fill_answer2', 'game5_q2b_fill_answer3'
+                ]
             },
             {
                 q: 3,
-                answers: ['game5_q3_correct_answer1', 'game5_q3_fail_answer1', 'game5_q3_fail_answer2', 'game5_q3_fail_answer3'],
-                fillAnswers: ['game5_q3_fill_answer1', 'game5_q3_fill_answer2', 'game5_q3_fill_answer3', 'game5_q3_fill_answer4']
+                answers: [
+                    'game5_q3a_correct_answer1', 'game5_q3b_correct_answer1',
+                    'game5_q3a_fail_answer2', 'game5_q3a_fail_answer3',
+                    'game5_q3b_fail_answer2', 'game5_q3b_fail_answer3'
+                ],
+                fillAnswers: [
+                    'game5_q3a_fill_answer1', 'game5_q3b_fill_answer1',
+                    'game5_q3a_fill_answer2', 'game5_q3a_fill_answer3',
+                    'game5_q3b_fill_answer2', 'game5_q3b_fill_answer3'
+                ]
             }
         ];
 
@@ -113,20 +139,22 @@ export class GameScene_5 extends BaseGameScene {
             {
                 q: 1,
                 fillPositions: [
-                    { x: 850, y: 580, targetKey: 'game5_q1_correct_answer1' },
-                    { x: 1125, y: 580, targetKey: 'game5_q1_correct_answer2' }
+                    { x: 625, y: 580, targetKey: 'game5_q1a_correct_answer1' },
+                    { x: 1055, y: 580, targetKey: 'game5_q1b_correct_answer1' }
                 ]
             },
             {
                 q: 2,
                 fillPositions: [
-                    { x: 1050, y: 580, targetKey: 'game5_q2_correct_answer1' }
+                    { x: 625, y: 580, targetKey: 'game5_q2a_correct_answer1' },
+                    { x: 1055, y: 580, targetKey: 'game5_q2b_correct_answer1' }
                 ]
             },
             {
                 q: 3,
                 fillPositions: [
-                    { x: 980, y: 580, targetKey: 'game5_q3_correct_answer1' }
+                    { x: 625, y: 580, targetKey: 'game5_q3a_correct_answer1' },
+                    { x: 1055, y: 580, targetKey: 'game5_q3b_correct_answer1' }
                 ]
             }
         ];
@@ -143,12 +171,9 @@ export class GameScene_5 extends BaseGameScene {
         this.fillDebugGraphics.fillStyle(0x00ff00, 0.3); // Semi-transparent green fill
 
         currentFillPositions.forEach((slot, index) => {
-            const radius = 60;
+            const radius = 30;
             this.fillDebugGraphics.strokeCircle(slot.x, slot.y, radius);
             this.fillDebugGraphics.fillCircle(slot.x, slot.y, radius);
-            this.add.text(slot.x + radius + 5, slot.y - 10, `fill[${index}]\n${slot.targetKey}`, {
-                fontSize: '14px', fill: '#00ffff', backgroundColor: '#000000'
-            }).setDepth(251);
         });
 
         // Build answerKey → fillAnswerKey lookup
@@ -275,7 +300,7 @@ export class GameScene_5 extends BaseGameScene {
             this.showFeedbackLabel(true);
         }
         this.updateRoundUI(true);
-        this.showDescriptionPanel();
+       // this.showDescriptionPanel();
     }
 
     showDescriptionPanel() {
