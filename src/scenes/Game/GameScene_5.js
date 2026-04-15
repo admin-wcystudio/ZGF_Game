@@ -28,6 +28,8 @@ export class GameScene_5 extends BaseGameScene {
         this.load.image('game5_npc_box_win', `${path}game5_npc_box4.png`);
         this.load.image('game5_npc_box_tryagain', `${path}game5_npc_box5.png`);
 
+        this.load.image('game5_object_description', `${path}game5_object_description.png`);
+
         for (let i = 1; i <= 3; i++) {
             this.load.image(`game5_q${i}`, `${path}game5_q${i}.png`);
             this.load.image(`game5_q${i}a_correct_answer1`, `${path}game5_q${i}a_correct_answer1.png`);
@@ -73,10 +75,10 @@ export class GameScene_5 extends BaseGameScene {
             roundPerSeconds: 120,
             isAllowRoundFail: false,
             isContinuousTimer: true,
-            sceneIndex: 3
+            sceneIndex: 5
         });
 
-        this.gameUI.descriptionPanel.setVisible(false);
+        // this.gameUI.descriptionPanel.setVisible(false);
 
     }
 
@@ -115,9 +117,9 @@ export class GameScene_5 extends BaseGameScene {
                     'game5_q2b_fail_answer2', 'game5_q2b_fail_answer3'
                 ],
                 fillAnswers: [
-                    'game5_q2a_fill_answer1', 'game5_q2b_fill_answer1',
-                    'game5_q2a_fill_answer2', 'game5_q2a_fill_answer3',
-                    'game5_q2b_fill_answer2', 'game5_q2b_fill_answer3'
+                    'game5_q2a_fill_answer2', 'game5_q2b_fill_answer3',
+                    'game5_q2a_fill_answer1', 'game5_q2a_fill_answer3',
+                    'game5_q2b_fill_answer2', 'game5_q2b_fill_answer1'
                 ]
             },
             {
@@ -128,9 +130,9 @@ export class GameScene_5 extends BaseGameScene {
                     'game5_q3b_fail_answer2', 'game5_q3b_fail_answer3'
                 ],
                 fillAnswers: [
-                    'game5_q3a_fill_answer1', 'game5_q3b_fill_answer1',
-                    'game5_q3a_fill_answer2', 'game5_q3a_fill_answer3',
-                    'game5_q3b_fill_answer2', 'game5_q3b_fill_answer3'
+                    'game5_q3a_fill_answer3', 'game5_q3b_fill_answer2',
+                    'game5_q3a_fill_answer1', 'game5_q3a_fill_answer2',
+                    'game5_q3b_fill_answer1', 'game5_q3b_fill_answer3'
                 ]
             }
         ];
@@ -153,8 +155,8 @@ export class GameScene_5 extends BaseGameScene {
             {
                 q: 3,
                 fillPositions: [
-                    { x: 625, y: 580, targetKey: 'game5_q3a_correct_answer1' },
-                    { x: 1055, y: 580, targetKey: 'game5_q3b_correct_answer1' }
+                    { x: 570, y: 580, targetKey: 'game5_q3a_correct_answer1' },
+                    { x: 1010, y: 580, targetKey: 'game5_q3b_correct_answer1' }
                 ]
             }
         ];
@@ -298,27 +300,12 @@ export class GameScene_5 extends BaseGameScene {
             this._calculateTiming(isFinalWin);
             this.enableGameInteraction(false);
             this.showFeedbackLabel(true);
+            this.showBubble('win');
+        } else {
+            this.currentIndex++;
+            this.resetForNewRound();
         }
         this.updateRoundUI(true);
-       // this.showDescriptionPanel();
-    }
-
-    showDescriptionPanel() {
-        this.descriptionPanel = new CustomPanel(this, this.centerX, this.centerY, [{
-            content: `game5_q${this.currentIndex}_description`,
-            closeBtn: 'close_btn',
-            closeBtnClick: 'close_btn_click'
-        }]);
-        this.descriptionPanel.setDepth(1000);
-        this.descriptionPanel.show();
-        this.descriptionPanel.setCloseCallBack(() => {
-            if (this.gameState === 'roundWin') {
-                this.currentIndex++;
-                this.resetForNewRound();
-            } else {
-                this.showBubble('win');
-            }
-        });
     }
 
     enableGameInteraction(enabled) {
@@ -336,6 +323,11 @@ export class GameScene_5 extends BaseGameScene {
     }
 
     resetForNewRound() {
+        // Reset currentIndex to 1 on full game restart (restartGame sets gameState to 'init')
+        if (this.gameState === 'init') {
+            this.currentIndex = 1;
+        }
+
         // Destroy question image
         if (this.questionImage) { this.questionImage.destroy(); this.questionImage = null; }
 
@@ -364,9 +356,31 @@ export class GameScene_5 extends BaseGameScene {
         this.isGameActive = true;
         this.gameTimer.start();
         this.enableGameInteraction(true);
+
+    }
+    showWin() {
+        this.showObjectPanel();
     }
 
-    onWinBubbleClose() {
-        GameManager.backToMainStreet(this);
+    showObjectPanel() {
+        const objectPanel = new CustomPanel(this, 960, 600, [{
+            content: 'game5_object_description',
+            closeBtn: 'close_btn',
+            closeBtnClick: 'close_btn_click'
+        }]);
+        objectPanel.setDepth(1000);
+        objectPanel.show();
+        //objectPanel.setCloseCallBack(() => GameManager.backToMainStreet(this));
+    }
+
+
+    showFailPanel() {
+        const popupPanel = new CustomFailPanel(this, 960, 540, () => {
+            popupPanel.destroy();
+            this.restartGame(); // 重新開始整個遊戲
+        }, () => {
+            //GameManager.backToMainStreet(this);
+        });
+        popupPanel.setDepth(1000);
     }
 }
