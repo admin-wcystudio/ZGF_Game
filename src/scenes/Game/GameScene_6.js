@@ -40,14 +40,12 @@ export class GameScene_6 extends BaseGameScene {
 
     create() {
         this.initGame('game6_bg', 'game6_description', true, false, {
-            targetRounds: 3,
-            roundPerSeconds: 700,
+            targetRounds: 1,
+            roundPerSeconds: 120,
             isAllowRoundFail: false,
             isContinuousTimer: true,
             sceneIndex: 6
         });
-
-        
 
     }
 
@@ -60,18 +58,18 @@ export class GameScene_6 extends BaseGameScene {
         this.cardBg = this.add.image(centerX, centerY, 'game6_fill_bg').setDepth(5);
         this.spawnCardPositions = [
             { x: centerX - 560, y: centerY - 200, },
-            { x: centerX - 700, y: centerY + 30, },
-            { x: centerX - 750, y: centerY + 300, },
+            { x: centerX - 730, y: centerY + 80, },
+            { x: centerX - 650, y: centerY + 350, },
             { x: centerX + 600, y: centerY - 150, },
             { x: centerX + 700, y: centerY + 150, }
         ];
 
         this.defaultCards = [
-            { id: 1, content: 'game6_fill1', targetX: centerX - 225, targetY: centerY - 150, occupiedBy: null },
-            { id: 2, content: 'game6_fill2', targetX: centerX + 225, targetY: centerY - 150, occupiedBy: null },
-            { id: 3, content: 'game6_fill3', targetX: centerX - 400, targetY: centerY + 150, occupiedBy: null },
-            { id: 4, content: 'game6_fill4', targetX: centerX, targetY: centerY + 150, occupiedBy: null },
-            { id: 5, content: 'game6_fill5', targetX: centerX + 400, targetY: centerY + 150, occupiedBy: null }
+            { id: 1, content: 'game6_fill1', targetX: centerX - 225, targetY: centerY - 160, occupiedBy: null },
+            { id: 2, content: 'game6_fill2', targetX: centerX + 200, targetY: centerY - 160, occupiedBy: null },
+            { id: 3, content: 'game6_fill3', targetX: centerX - 420, targetY: centerY + 170, occupiedBy: null },
+            { id: 4, content: 'game6_fill4', targetX: centerX, targetY: centerY + 170, occupiedBy: null },
+            { id: 5, content: 'game6_fill5', targetX: centerX + 410, targetY: centerY + 170, occupiedBy: null }
         ];
 
 
@@ -113,14 +111,14 @@ export class GameScene_6 extends BaseGameScene {
 
         this.confirm_button.setDepth(100);
 
-        const debugGraphics = this.add.graphics().setDepth(this.depth + 2); // 擺喺背景上面，物件下面
-        debugGraphics.lineStyle(4, 0xff0000, 1); // 紅色線，粗度 2
+        // const debugGraphics = this.add.graphics().setDepth(this.depth + 2); // 擺喺背景上面，物件下面
+        // debugGraphics.lineStyle(4, 0xff0000, 1); // 紅色線，粗度 2
 
-        const tolerance = 60; // 同你 checkSnap 裡面個數值一樣
-        this.defaultCards.forEach(data => {
-            debugGraphics.lineStyle(3, 0x00ff00, 0.5); // 綠色虛線感
-            debugGraphics.strokeCircle(data.targetX, data.targetY, tolerance);
-        });
+        // const tolerance = 60; // 同你 checkSnap 裡面個數值一樣
+        // this.defaultCards.forEach(data => {
+        //     debugGraphics.lineStyle(3, 0x00ff00, 0.5); // 綠色虛線感
+        //     debugGraphics.strokeCircle(data.targetX, data.targetY, tolerance);
+        // });
 
     }
 
@@ -148,9 +146,11 @@ export class GameScene_6 extends BaseGameScene {
     enableGameInteraction(enable) {
         this.cardGroup.getChildren().forEach(card => {
             if (enable) {
+                card.setVisible(true);
                 card.setInteractive({ draggable: true });
             } else {
                 card.disableInteractive();
+                card.setVisible(false);
             }
         });
         this.confirm_button.setActive(enable);
@@ -240,7 +240,7 @@ export class GameScene_6 extends BaseGameScene {
 
         if (isFinalWin) {
             this.showFeedbackLabel(true);
-            this.handleWin();
+            this.showBubble('win');
         } else {
 
             this.roundIndex++;
@@ -252,13 +252,17 @@ export class GameScene_6 extends BaseGameScene {
 
     }
     showWin() {
-        const npcBox = this.add.image(this.centerX, this.centerY, 'game6_npc_box_win').setDepth(1000);
-        this.time.delayedCall(2000, () => {
-            npcBox.setTexture('game6_npc_box_win_01');
-            this.time.delayedCall(2000, () => {
-                npcBox.destroy();
-                //GameManager.backToMainStreet(this);
-            });
+
+        const centerX = this.cameras.main.width / 2;
+        // Adaptive Y: 20% from bottom for win/tryagain, 80% for intro
+        const centerY = this.cameras.main.height * 0.8;
+        this.npcBox = this.add.image(centerX, centerY, 'game6_npc_box_win_01')
+            .setDepth(1000).setInteractive({ useHandCursor: true });
+
+        this.npcBox.once('pointerdown', () => {
+            this.npcBox.destroy();
+            this.npcBox = null;
+            // GameManager.backToMainStreet(this);
         });
     }
 
