@@ -17,283 +17,282 @@ export class GameScene_6 extends BaseGameScene {
         this.centerX = this.width / 2;
         this.centerY = this.height / 2;
 
-        this.load.image('game6_npc_box_mainstreet', `${path}game6_npc_box1.png`);
+        this.load.image(`game6_fill_bg`, `${path}game6_fill_bg.png`);
 
-        this.load.image('game6_npc_box_win', `${path}game6_npc_box2.png`);
-        this.load.image('game6_npc_box_tryagain', `${path}game6_npc_box3.png`);
+        this.load.image('game6_npc_box_mainstreet_01', `${path}game6_npc_box1.png`);
+        this.load.image('game6_npc_box_mainstreet_02', `${path}game6_npc_box2.png`);
+        this.load.image('game6_npc_box_mainstreet_ok', `${path}game6_npc_box3.png`);
+        this.load.image('game6_npc_box_mainstreet_ok_02', `${path}game6_npc_box4.png`);
 
-        this.load.image('game6_hit_button', `${path}game6_click_button.png`);
-        this.load.image('game6_hit_button_select', `${path}game6_click_button_select.png`)
+        this.load.image('game6_npc_box_win', `${path}game6_npc_box5.png`);
+        this.load.image('game6_npc_box_win_01', `${path}game6_npc_box6.png`);
+        this.load.image('game6_npc_box_tryagain', `${path}game6_npc_box7.png`);
 
-        this.load.image('game6_object_description', path + 'game6_object_description.png');;
+        this.load.image('game6_confirm_button', `${path}game6_confirm_button.png`);
+        this.load.image('game6_confirm_button_select', `${path}game6_confirm_button_select.png`);
 
-        this.gender = 'M';
-        if (localStorage.getItem('player')) {
-            this.gender = JSON.parse(localStorage.getItem('player')).gender;
-        }
-
-        if (this.gender === 'M') {
-
-            this.load.image('game6_target_arrow', `${path}game6_arrow_boy.png`);
-
-        } else {
-
-            this.load.image('game6_target_arrow', `${path}game6_arrow_girl.png`);
-
-        }
-
-        for (let i = 1; i <= 3; i++) {
-            this.load.image(`game6_bar${i}`, `${path}game6_bar${i}.png`);
+        for (let i = 1; i <= 5; i++) {
+            this.load.image(`game6_fill${i}`, `${path}game6_fill${i}.png`);
+            this.load.image(`game6_fill${i}_popup`, `${path}game6_fill${i}_popup.png`);
         }
 
     }
 
     create() {
-        this.arrow = this.add.image(this.centerX, this.centerY - 100, 'game6_target_arrow')
-            .setDepth(501).setVisible(true);
-
-        this.bar = this.add.image(this.centerX, this.centerY + 100, 'game6_bar1')
-            .setDepth(500).setVisible(true);
-
         this.initGame('game6_bg', 'game6_description', true, false, {
             targetRounds: 3,
-            roundPerSeconds: 60,
+            roundPerSeconds: 700,
             isAllowRoundFail: false,
             isContinuousTimer: true,
             sceneIndex: 6
         });
 
-    }
+        
 
-    update() {
-        if (!this.arrow || this.isHit) return;
-
-        // Bouncing logic
-        this.arrow.x += this.arrowSpeed;
-
-        if (this.arrow.x >= 1580) {
-            this.arrow.x = 1580;
-            this.arrowSpeed = -Math.abs(this.arrowSpeed); // Turn left
-        } else if (this.arrow.x <= 350) {
-            this.arrow.x = 350;
-            this.arrowSpeed = Math.abs(this.arrowSpeed); // Turn right
-        }
     }
 
     setupGameObjects() {
-        this.arrowSpeed = 10; // Initial speed of the arrow
-        this.isHit = false;
-        this.successfulHits = 0; // Track number of successful hits
 
-        // Define success ranges for each bar (min and max x positions)
-        this.hitRanges = [
-            { min: 450, max: 580 },  // Bar 1 success range
-            { min: 1060, max: 1200 },  // Bar 2 success range
-            { min: 720, max: 850 }   // Bar 3 success range
+        this.isChecked = false;
+        const centerX = this.cameras.main.width / 2;
+        const centerY = this.cameras.main.height / 2;
+
+        this.cardBg = this.add.image(centerX, centerY, 'game6_fill_bg').setDepth(5);
+        this.spawnCardPositions = [
+            { x: centerX - 560, y: centerY - 200, },
+            { x: centerX - 700, y: centerY + 30, },
+            { x: centerX - 750, y: centerY + 300, },
+            { x: centerX + 600, y: centerY - 150, },
+            { x: centerX + 700, y: centerY + 150, }
         ];
 
-        this.hitButton = new CustomButton(this, 1720, 880,
-            'game6_hit_button', 'game6_hit_button_select',
-            () => this.handleHitButtonClick()
-        )
-            .setDepth(502);
+        this.defaultCards = [
+            { id: 1, content: 'game6_fill1', targetX: centerX - 225, targetY: centerY - 150, occupiedBy: null },
+            { id: 2, content: 'game6_fill2', targetX: centerX + 225, targetY: centerY - 150, occupiedBy: null },
+            { id: 3, content: 'game6_fill3', targetX: centerX - 400, targetY: centerY + 150, occupiedBy: null },
+            { id: 4, content: 'game6_fill4', targetX: centerX, targetY: centerY + 150, occupiedBy: null },
+            { id: 5, content: 'game6_fill5', targetX: centerX + 400, targetY: centerY + 150, occupiedBy: null }
+        ];
 
-        // Add hover effect to hit button
-        this.hitButton.on('pointerover', () => {
-            this.hitButton.setTexture('game6_hit_button_select');
+
+        this.cardGroup = this.add.group();
+
+        // Shuffle spawn positions for initial spawn
+        const shuffledPositions = Phaser.Utils.Array.Shuffle([...this.spawnCardPositions]);
+        this.defaultCards.forEach((cardInfo, i) => {
+            const spawnPos = shuffledPositions[i % shuffledPositions.length];
+            const card = this.add.image(spawnPos.x, spawnPos.y, cardInfo.content);
+            card.setData({ targetX: cardInfo.targetX, targetY: cardInfo.targetY, isCorrect: false });
+            card.on('pointerdown', () => {
+                this.selectCard(card);
+            });
+            this.cardGroup.add(card);
+            card.setDepth(10);
         });
 
-        this.hitButton.on('pointerout', () => {
-            this.hitButton.setTexture('game6_hit_button');
+        this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+            if (this.selectedCard !== gameObject) this.selectCard(gameObject);
+            gameObject.setPosition(dragX, dragY).setDepth(100);
         });
 
-        //this.drawDebugRanges();
+        this.input.on('dragend', (pointer, gameObject) => {
+            gameObject.setDepth(50);
+            // Log the texture key (name) of the gameObject
+            this.checkSnap(gameObject);
+        });
+
+        this.confirm_button = new CustomButton(this, centerX + 800, centerY + 400,
+            'game6_confirm_button', 'game6_confirm_button_select',
+            () => {
+                console.log(' button clicked');
+                if (this.isChecked) return;
+                this.isChecked = true;
+                this.checkAllDone();
+            }, () => { }).setScale(0.8);
+        this.confirm_button.setActive(false);
+
+        this.confirm_button.setDepth(100);
+
+        const debugGraphics = this.add.graphics().setDepth(this.depth + 2); // 擺喺背景上面，物件下面
+        debugGraphics.lineStyle(4, 0xff0000, 1); // 紅色線，粗度 2
+
+        const tolerance = 60; // 同你 checkSnap 裡面個數值一樣
+        this.defaultCards.forEach(data => {
+            debugGraphics.lineStyle(3, 0x00ff00, 0.5); // 綠色虛線感
+            debugGraphics.strokeCircle(data.targetX, data.targetY, tolerance);
+        });
+
     }
 
-    // drawDebugRanges() {
-    //     const colors = [0x00ff00, 0x0088ff, 0xff8800];
-    //     const labels = ['Bar 1', 'Bar 2', 'Bar 3'];
-    //     const gfx = this.add.graphics().setDepth(600);
+    selectCard(card) {
+        if (this.selectedCard) {
+            this.selectedCard.clearTint();
+        }
+        this.selectedCard = card;
+        this.selectedCard.setTint(0xaaaaaa);
 
-    //     this.hitRanges.forEach((range, i) => {
-    //         gfx.fillStyle(colors[i], 0.25);
-    //         gfx.fillRect(range.min, 0, range.max - range.min, this.height);
-    //         gfx.lineStyle(2, colors[i], 0.8);
-    //         gfx.strokeRect(range.min, 0, range.max - range.min, this.height);
-
-    //         this.add.text(range.min + 4, 10 + i * 24, `${labels[i]}: ${range.min}–${range.max}`, {
-    //             fontSize: '18px', color: '#ffffff', stroke: '#000000', strokeThickness: 3
-    //         }).setDepth(601);
-    //     });
-    // }
-
-    handleHitButtonClick() {
-        if (this.isHit || !this.isGameActive) return; // Prevent multiple clicks
-
-        this.isHit = true;
-        this.arrowSpeed = 0;
-        this.hitButton.setTexture('game6_hit_button'); // Reset button texture on click
-        this.checkHitSuccess();
     }
 
-    checkHitSuccess() {
-        const currentBarIndex = this.successfulHits; // 0, 1, or 2
-        const range = this.hitRanges[currentBarIndex];
-        const arrowX = this.arrow.x;
+    showObjectDescription(objectKey) {
+        const descriptionKey = `${objectKey}_popup`;
 
-        console.log(`Arrow at x=${arrowX}, Range: ${range.min}-${range.max}`);
-
-        // Check if arrow is within the success range
-        if (arrowX >= range.min && arrowX <= range.max) {
-            this.onRoundWin();
-        } else {
-            console.log('Hit failed - outside range');
-            // Update roundIndex to current attempt so correct UI element is marked as failed
-            this.roundIndex = this.successfulHits;
-            this.time.delayedCall(500, () => {
-                this.handleLose();
-            });
-        }
-    }
-
-    /**
-     * Override: Called when a round/game is won
-     */
-    onRoundWin() {
-        if (!this.isGameActive || this.gameState === 'gameWin') return;
-
-        // Increment successful hits
-        this.successfulHits++;
-        console.log(`Hit ${this.successfulHits}/3 successful!`);
-
-        // Sync roundIndex with successfulHits for proper round UI update
-        this.roundIndex = this.successfulHits - 1;
-
-        // Determine if this is the last round (3rd successful hit)
-        let isGameWin = (this.successfulHits >= this.targetRounds);
-        console.log('遊戲狀態改為:', isGameWin ? 'gameWin' : 'roundWin');
-
-        this.gameState = isGameWin ? 'gameWin' : 'roundWin';
-
-        if (this.gameTimer) this.gameTimer.stop();
-
-        if (this.gameTimer && typeof this.gameTimer.getRemaining === 'function') {
-            if (this.isContinuousTimer) {
-                if (isGameWin) {
-                    this.totalUsedSeconds = Math.max(0, this.roundPerSeconds - this.gameTimer.getRemaining());
-                }
-            } else {
-                const used = Math.max(0, this.roundPerSeconds - this.gameTimer.getRemaining());
-                this.totalUsedSeconds += used;
-            }
-        }
-
-        this.enableGameInteraction(false);
-        this.updateRoundUI(true);
-
-        // Show feedback and bubble
-        if (isGameWin) {
-
-            this.label = this.add.image(1650, 350, 'game_success_label').setDepth(555);
-            this.showBubble('win', this.playerGender);
-        } else {
-
-            this.showBubble('noBubble', this.playerGender);
-        }
-    }
-
-    /**
-     * Override: Called when win bubble is closed - moves to next bar or ends game
-     */
-    onWinBubbleClose() {
-        if (!this.isGameActive) return;
-
-        if (this.gameState === 'roundWin') {
-            // For round win, move to next bar instead of nextRound()
-            this.time.delayedCall(500, () => {
-                this.nextBar();
-            });
-
-        } else if (this.gameState === 'gameWin') {
-            // Save game result
-            if (this.sceneIndex > 0) {
-                GameManager.saveGameResult(this.sceneIndex, true, this.totalUsedSeconds);
-                console.log(`遊戲 ${this.sceneIndex} 結束，總用時: ${this.totalUsedSeconds} 秒`);
-            }
-            this.showWin();
-            this.isGameActive = false;
-            this.gameState = 'completed';
-        }
-    }
-
-    nextBar() {
-        // Reset for next round
-        this.isHit = false;
-        this.arrow.x = this.centerX;
-        this.arrowSpeed = 10;
-
-        // Update bar image for next question
-        const barKeys = ['game6_bar1', 'game6_bar2', 'game6_bar3'];
-        this.bar.setTexture(barKeys[this.successfulHits]);
-
-        console.log(`Moving to bar ${this.successfulHits + 1}`);
-
-        // Clear feedback label
-        if (this.feedbackLabel) {
-            this.feedbackLabel.destroy();
-            this.feedbackLabel = null;
-        }
-
-        // Re-enable interaction and continue playing
-        this.gameState = 'playing';
-        this.isGameActive = true;
-        this.enableGameInteraction(true);
-
-        // Resume timer if continuous
-        if (this.gameTimer && this.isContinuousTimer) {
-            this.gameTimer.start();
-        }
-    }
-
-    resetForNewRound() {
-        // Reset game state
-        this.isHit = false;
-        this.successfulHits = 0;
-        this.arrowSpeed = 10;
-
-        if (this.arrow) {
-            this.arrow.x = this.centerX;
-        }
-
-        if (this.bar) {
-            this.bar.setTexture('game6_bar1');
-        }
-    }
-
-    enableGameInteraction(enabled) {
-        if (this.hitButton) {
-            if (enabled) {
-                this.hitButton.setInteractive();
-            } else {
-                this.hitButton.disableInteractive();
-            }
-        }
-        this.allowToStart = enabled;
-    }
-
-    showWin() {
-        this.showObjectPanel();
-    }
-
-    showObjectPanel() {
-        const objectPanel = new CustomPanel(this, 960, 600, [{
-            content: 'game6_object_description',
+        const descriptionPanel = new CustomPanel(this, 960, 540, [{
+            content: descriptionKey,
             closeBtn: 'close_btn',
             closeBtnClick: 'close_btn_click'
         }]);
-        objectPanel.setDepth(1000);
-        objectPanel.show();
-        objectPanel.setCloseCallBack(() => GameManager.backToMainStreet(this));
+        descriptionPanel.setDepth(1000);
+        descriptionPanel.show();
+    }
+
+    enableGameInteraction(enable) {
+        this.cardGroup.getChildren().forEach(card => {
+            if (enable) {
+                card.setInteractive({ draggable: true });
+            } else {
+                card.disableInteractive();
+            }
+        });
+        this.confirm_button.setActive(enable);
+        this.cardBg.setVisible(enable);
+        if (enable) {
+            this.isChecked = false;
+        }
+    }
+
+    checkSnap(card) {
+        // Find the nearest unoccupied card position within threshold
+        const threshold = 60;
+        let nearest = null;
+        let minDist = Infinity;
+        this.defaultCards.forEach(pos => {
+            if (!pos.occupiedBy) {
+                const d = Phaser.Math.Distance.Between(card.x, card.y, pos.targetX, pos.targetY);
+                if (d < threshold && d < minDist) {
+                    minDist = d;
+                    nearest = pos;
+                }
+            } else {
+                if (pos.occupiedBy === card) {
+                    pos.occupiedBy = null;
+                    card.clearTint();
+                }
+            }
+            //console.log('Target Position -', pos.id, ',current card', pos.occupiedBy ? pos.occupiedBy.texture.key : 'none');
+        });
+
+        // Snap to nearest slot and show description
+        if (nearest) {
+            card.setPosition(nearest.targetX, nearest.targetY);
+            nearest.occupiedBy = card;
+            card.clearTint();
+            this.showObjectDescription(card.texture.key);
+        }
+    }
+
+    randomCardPosition(cards) {
+        // Shuffle spawn positions
+        const shuffledPositions = Phaser.Utils.Array.Shuffle([...this.spawnCardPositions]);
+        cards.forEach((card, i) => {
+            const pos = shuffledPositions[i % shuffledPositions.length];
+            card.setPosition(pos.x, pos.y);
+        });
+    }
+
+    checkAllDone() {
+        console.log('Checking all cards...');
+        let allCorrect = true;
+
+        this.defaultCards.forEach(cardInfo => {
+            if (cardInfo.occupiedBy) {
+                const placedKey = cardInfo.occupiedBy.texture.key;
+                const targetKey = cardInfo.content;
+
+                if (targetKey === placedKey) {
+                    cardInfo.occupiedBy.setData('isCorrect', true);
+                } else {
+                    cardInfo.occupiedBy.setData('isCorrect', false);
+                    allCorrect = false;
+                }
+            } else {
+                allCorrect = false;
+            }
+        });
+
+        if (allCorrect) {
+            this.onRoundWin();
+        } else {
+            this.handleLose();
+        }
+
+    }
+
+    onRoundWin() {
+        if (!this.isGameActive || this.gameState === 'gameWin') return;
+
+        console.log(`Round ${this.roundIndex} win`);
+        let isFinalWin = (this.roundIndex + 1 == this.targetRounds);
+        this.gameState = isFinalWin ? 'gameWin' : 'roundWin';
+
+        this.gameTimer.stop();
+        this._calculateTiming(isFinalWin);
+        this.enableGameInteraction(false);
+
+        if (isFinalWin) {
+            this.showFeedbackLabel(true);
+            this.handleWin();
+        } else {
+
+            this.roundIndex++;
+            this.resetForNewRound();
+        }
+
+        this.updateRoundUI(true);
+
+
+    }
+    showWin() {
+        const npcBox = this.add.image(this.centerX, this.centerY, 'game6_npc_box_win').setDepth(1000);
+        this.time.delayedCall(2000, () => {
+            npcBox.setTexture('game6_npc_box_win_01');
+            this.time.delayedCall(2000, () => {
+                npcBox.destroy();
+                //GameManager.backToMainStreet(this);
+            });
+        });
+    }
+
+
+    showFailPanel() {
+        const popupPanel = new CustomFailPanel(this, 960, 540, () => {
+            popupPanel.destroy();
+            this.restartGame(); // 重新開始整個遊戲
+        }, () => {
+            //GameManager.backToMainStreet(this);
+        });
+        popupPanel.setDepth(1000);
+    }
+
+    resetForNewRound() {
+        if (this.video) this.video.destroy();
+        if (this.label) { this.label.destroy(); this.label = null; }
+
+        this.randomCardPosition(this.cardGroup.getChildren());
+        this.cardGroup.getChildren().forEach(card => {
+            card.setData('isCorrect', false);
+        });
+        this.defaultCards.forEach(pos => {
+            pos.occupiedBy = null;
+        });
+        this.cardGroup.setVisible(true);
+        this.cardBg.setVisible(true);
+        this.confirm_button.setVisible(true);
+
+        this.gameState = 'playing';
+        this.isGameActive = true;
+        this.isChecked = false;
+
+        this.enableGameInteraction(true);
     }
 
 

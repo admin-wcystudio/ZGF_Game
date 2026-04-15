@@ -24,7 +24,7 @@ export class GameScene_5 extends BaseGameScene {
 
         this.load.image('game5_npc_box_mainstreet_01', `${path}game5_npc_box1.png`);
         this.load.image('game5_npc_box_mainstreet_02', `${path}game5_npc_box2.png`);
-        this.load.image('game5_npc_box_mainstreet_03', `${path}game5_npc_box3.png`);
+        this.load.image('game5_npc_box_mainstreet_ok', `${path}game5_npc_box3.png`);
         this.load.image('game5_npc_box_win', `${path}game5_npc_box4.png`);
         this.load.image('game5_npc_box_tryagain', `${path}game5_npc_box5.png`);
 
