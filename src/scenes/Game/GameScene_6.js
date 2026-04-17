@@ -156,27 +156,14 @@ export class GameScene_6 extends BaseGameScene {
             }
         };
 
-        const descriptionPanel = new CustomPanel(this, 960, 540, [{
-            content: descriptionKey,
-            closeBtn: 'close_btn',
-            closeBtnClick: 'close_btn_click'
-        }]);
-        const descriptionPanelB = new CustomPanel(this, 960, 540, [{
-            content: descriptionKeyB,
-            closeBtn: 'close_btn',
-            closeBtnClick: 'close_btn_click'
-        }]);
+        const descriptionPanel = new CustomPanel(this, 960, 540, [
+            { content: descriptionKey },
+            { content: descriptionKeyB }
+        ]);
 
         descriptionPanel.setDepth(1000);
-        descriptionPanelB.setDepth(1000);
-
         descriptionPanel.setCloseCallBack(() => {
             descriptionPanel.destroy();
-            descriptionPanelB.show();
-        });
-
-        descriptionPanelB.setCloseCallBack(() => {
-            descriptionPanelB.destroy();
             resumeDescriptionPanel();
         });
 
