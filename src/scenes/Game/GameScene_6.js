@@ -33,7 +33,8 @@ export class GameScene_6 extends BaseGameScene {
 
         for (let i = 1; i <= 5; i++) {
             this.load.image(`game6_fill${i}`, `${path}game6_fill${i}.png`);
-            this.load.image(`game6_fill${i}_popup`, `${path}game6_fill${i}_popup.png`);
+            this.load.image(`game6_fill${i}a_popup`, `${path}game6_fill${i}a_popup.png`);
+            this.load.image(`game6_fill${i}b_popup`, `${path}game6_fill${i}b_popup.png`);
         }
 
     }
@@ -132,14 +133,54 @@ export class GameScene_6 extends BaseGameScene {
     }
 
     showObjectDescription(objectKey) {
-        const descriptionKey = `${objectKey}_popup`;
+        const descriptionKey = `${objectKey}a_popup`;
+        const descriptionKeyB = `${objectKey}b_popup`;
+
+        const pauseDescriptionPanel = () => {
+            if (this.gameTimer) {
+                this.gameTimer.stop();
+            }
+            this.cardGroup.getChildren().forEach(card => card.disableInteractive());
+            if (this.confirm_button) {
+                this.confirm_button.setActive(false);
+            }
+        };
+
+        const resumeDescriptionPanel = () => {
+            if (this.gameTimer) {
+                this.gameTimer.start();
+            }
+            this.cardGroup.getChildren().forEach(card => card.setInteractive({ draggable: true }));
+            if (this.confirm_button) {
+                this.confirm_button.setActive(true);
+            }
+        };
 
         const descriptionPanel = new CustomPanel(this, 960, 540, [{
             content: descriptionKey,
             closeBtn: 'close_btn',
             closeBtnClick: 'close_btn_click'
         }]);
+        const descriptionPanelB = new CustomPanel(this, 960, 540, [{
+            content: descriptionKeyB,
+            closeBtn: 'close_btn',
+            closeBtnClick: 'close_btn_click'
+        }]);
+
         descriptionPanel.setDepth(1000);
+        descriptionPanelB.setDepth(1000);
+
+        descriptionPanel.setCloseCallBack(() => {
+            descriptionPanel.destroy();
+            descriptionPanelB.show();
+        });
+
+        descriptionPanelB.setCloseCallBack(() => {
+            descriptionPanelB.destroy();
+            resumeDescriptionPanel();
+        });
+
+        pauseDescriptionPanel();
         descriptionPanel.show();
     }
 
