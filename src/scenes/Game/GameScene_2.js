@@ -3,10 +3,12 @@ import { CustomButton } from '../../UI/Button.js';
 import { CustomPanel, CustomFailPanel } from '../../UI/Panel.js';
 import GameManager from '../GameManager.js';
 
+
 export class GameScene_2 extends BaseGameScene {
     constructor() {
         super('GameScene_2');
     }
+
     preload() {
         const path = 'assets/images/Game_2/';
 
@@ -16,284 +18,253 @@ export class GameScene_2 extends BaseGameScene {
         this.centerY = this.height / 2;
 
         this.load.image('game2_npc_box_mainstreet', `${path}game2_npc_box1.png`);
-        this.load.image('game2_npc_box_intro', `${path}game2_npc_box2.png`);
-        this.load.image('game2_npc_box_win', `${path}game2_npc_box3.png`);
-        this.load.image('game2_npc_box_tryagain', `${path}game2_npc_box4.png`);
 
+        this.load.image('game2_npc_box_win', `${path}game2_npc_box2.png`);
+        this.load.image('game2_npc_box_tryagain', `${path}game2_npc_box3.png`);
 
-        this.gender = 'M';
-        if (localStorage.getItem('player')) {
-            this.gender = JSON.parse(localStorage.getItem('player')).gender;
-        }
-        if (this.gender === 'M') {
-            this.load.spritesheet('boy_fail', path +
-                'game2_boy_fail.png', { frameWidth: 340, frameHeight: 500 });
+        this.load.image('game2_hit_button', `${path}game2_click_button.png`);
+        this.load.image('game2_hit_button_select', `${path}game2_click_button_select.png`)
 
-            this.load.spritesheet('boy_left', path +
-                'game2_boy_left.png', { frameWidth: 340, frameHeight: 500 });
+        this.load.image('game2_object_description', path + 'game2_object_description.png');
+        this.load.image('game2_target_arrow', `${path}game2_arrow.png`);
 
-            this.load.spritesheet('boy_middle', path +
-                'game2_boy_middle.png', { frameWidth: 340, frameHeight: 500 });
-
-            this.load.spritesheet('boy_right', path +
-                'game2_boy_right.png', { frameWidth: 340, frameHeight: 500 });
-
-            this.load.spritesheet('boy_success', path +
-                'game2_boy_success.png', { frameWidth: 340, frameHeight: 500 });
-        } else {
-            this.load.spritesheet('girl_fail', path +
-                'game2_girl_fail.png', { frameWidth: 170, frameHeight: 250 });
-
-            this.load.spritesheet('girl_left', path +
-                'game2_girl_left.png', { frameWidth: 170, frameHeight: 250 });
-            this.load.spritesheet('girl_middle', path +
-                'game2_girl_middle.png', { frameWidth: 170, frameHeight: 250 });
-
-            this.load.spritesheet('girl_right', path +
-                'game2_girl_right.png', { frameWidth: 170, frameHeight: 250 });
-
-            this.load.spritesheet('girl_success', path +
-                'game2_girl_success.png', { frameWidth: 170, frameHeight: 250 });
+        for (let i = 1; i <= 3; i++) {
+            this.load.image(`game2_bar${i}`, `${path}game2_bar${i}.png`);
         }
 
     }
 
     create() {
-        this.createAnimations();
+        this.arrow = this.add.image(this.centerX, this.centerY - 100, 'game2_target_arrow')
+            .setDepth(501).setVisible(true);
 
-        // Movement settings
-        this.moveStep = 60;  // Pixels per move
-        this.isMoving = false;
+        this.bar = this.add.image(this.centerX, this.centerY + 100, 'game2_bar1')
+            .setDepth(500).setVisible(true);
 
-        // Player start position
-        this.playerStartX = this.centerX + 50;
-        this.playerStartY = 800;
-
-        this.initGame('game2_bg', 'game2_description', false, false, {
+        this.initGame('game2_bg', 'game2_description', true, false, {
             targetRounds: 3,
             roundPerSeconds: 60,
             isAllowRoundFail: false,
-            isContinuousTimer: false,
+            isContinuousTimer: true,
             sceneIndex: 2
         });
 
-        this.leftBtn = new CustomButton(this, 1550, 900, 'left_btn', 'left_btn_click', () => {
-            this.moveDirection('left');
-            this.resetPlayerState();
-        }, () => {
-        }).setDepth(2);
+    }
 
-        this.rightBtn = new CustomButton(this, 1750, 900, 'right_btn', 'right_btn_click',
-            () => {
-                this.moveDirection('right');
-                this.resetPlayerState();
-            }, () => {
+    update() {
+        if (!this.arrow || this.isHit) return;
 
-            }).setDepth(2);
+        // Bouncing logic
+        this.arrow.x += this.arrowSpeed;
 
-        // Initially disable buttons until game starts
-        this.leftBtn.setVisible(false);
-        this.rightBtn.setVisible(false);
-        this.leftBtn.disableInteractive();
-        this.rightBtn.disableInteractive();
-
-        this.genderKey = this.gender === 'M' ? 'boy' : 'girl';
-        console.log('genderKey:', this.genderKey);
-
-        this.player = this.add.sprite(this.centerX, 1000, `${this.genderKey}_middle`)
-            .setOrigin(0.5, 1).setDepth(2);
-
-        if (this.genderKey === 'girl') {
-            this.player.setScale(2); // Adjust scale for
+        if (this.arrow.x >= 1580) {
+            this.arrow.x = 1580;
+            this.arrowSpeed = -Math.abs(this.arrowSpeed); // Turn left
+        } else if (this.arrow.x <= 350) {
+            this.arrow.x = 350;
+            this.arrowSpeed = Math.abs(this.arrowSpeed); // Turn right
         }
-        this.player.anims.play(`${this.genderKey}_middle_anim`, true);
+    }
 
-        this.playerBasket = this.add.zone(this.player.x, this.player.y - 150, 180, 80);
+    setupGameObjects() {
+        this.arrowSpeed = 10; // Initial speed of the arrow
+        this.isHit = false;
+        this.successfulHits = 0; // Track number of successful hits
 
-        this.physics.add.existing(this.playerBasket);
-        this.playerBasket.body.setAllowGravity(false);
-        this.playerBasket.body.setImmovable(true);
-
-        this.basketGfx = this.add.graphics();
-        this.basketGfx.setDepth(3);
-
-
-        // spawn settings
-        this.canSpawn = false;
-        this.minX = 200;
-        this.maxX = 1600;
-        this.minY = 0;
-        this.maxY = 700;
-        this.failSpeed = 4;
-        this.isSlowDown = false;
-        this.slowDownSpeed = this.failSpeed / 2;
-
-        this.successCount = 0;
-
-
-        this.failItemKeys = [
-            'game2_failobject1',
-            'game2_failobject2',
-            'game2_failobject3'
+        // Define success ranges for each bar (min and max x positions)
+        this.hitRanges = [
+            { min: 620, max: 830 },  // Bar 1 success range
+            { min: 1160, max: 1370 },  // Bar 2 success range
+            { min: 900, max: 1110 }   // Bar 3 success range
         ];
 
-        this.fallingItemsGroup = this.physics.add.group();
-        this.fallingItems = [];
+        this.hitButton = new CustomButton(this, 1720, 880,
+            'game2_hit_button', 'game2_hit_button_select',
+            () => this.handleHitButtonClick()
+        )
+            .setDepth(502);
 
-        this.spawnTimer = 0;
+        // Add hover effect to hit button
+        this.hitButton.on('pointerover', () => {
+            this.hitButton.setTexture('game2_hit_button_select');
+        });
 
-        this.physics.add.overlap(this.playerBasket, this.fallingItemsGroup, (basket, item) => {
-            this.handleItemCollection(item);
-        }, null, this);
+        this.hitButton.on('pointerout', () => {
+            this.hitButton.setTexture('game2_hit_button');
+        });
+
+        this.drawDebugRanges();
     }
-    moveDirection(direction) {
-        const speed = 100;
-        this.player.anims.play(`${this.genderKey}_${direction}_anim`, true);
-        this.player.x += direction === 'left' ? -speed : speed;
-    }
 
-    resetPlayerState() {
-        this.time.delayedCall(300, () => {
-            this.player.anims.play(`${this.genderKey}_middle_anim`, true);
+    drawDebugRanges() {
+        const colors = [0x00ff00, 0x0088ff, 0xff8800];
+        const labels = ['Bar 1', 'Bar 2', 'Bar 3'];
+        const gfx = this.add.graphics().setDepth(600);
+
+        this.hitRanges.forEach((range, i) => {
+            gfx.fillStyle(colors[i], 0.25);
+            gfx.fillRect(range.min, 0, range.max - range.min, this.height);
+            gfx.lineStyle(2, colors[i], 0.8);
+            gfx.strokeRect(range.min, 0, range.max - range.min, this.height);
+
+            this.add.text(range.min + 4, 10 + i * 24, `${labels[i]}: ${range.min}–${range.max}`, {
+                fontSize: '18px', color: '#ffffff', stroke: '#000000', strokeThickness: 3
+            }).setDepth(601);
         });
     }
-    enableGameInteraction(enabled) {
-        this.canSpawn = enabled;
-        this.leftBtn.setVisible(enabled);
-        this.rightBtn.setVisible(enabled);
 
-        if (enabled) {
-            this.leftBtn.setInteractive();
-            this.rightBtn.setInteractive();
+    handleHitButtonClick() {
+        if (this.isHit || !this.isGameActive) return; // Prevent multiple clicks
+
+        this.isHit = true;
+        this.arrowSpeed = 0;
+        this.hitButton.setTexture('game2_hit_button'); // Reset button texture on click
+        this.checkHitSuccess();
+    }
+
+    checkHitSuccess() {
+        const currentBarIndex = this.successfulHits; // 0, 1, or 2
+        const range = this.hitRanges[currentBarIndex];
+        const arrowX = this.arrow.x;
+
+        console.log(`Arrow at x=${arrowX}, Range: ${range.min}-${range.max}`);
+
+        // Check if arrow is within the success range
+        if (arrowX >= range.min && arrowX <= range.max) {
+            this.onRoundWin();
         } else {
-            this.leftBtn.disableInteractive();
-            this.rightBtn.disableInteractive();
+            console.log('Hit failed - outside range');
+            // Update roundIndex to current attempt so correct UI element is marked as failed
+            this.roundIndex = this.successfulHits;
+            this.time.delayedCall(500, () => {
+                this.handleLose();
+            });
         }
-        this.fallingItems.forEach(item => {
-            item.setActive(enabled).setVisible(enabled);
-        });
+    }
+
+    /**
+     * Override: Called when a round/game is won
+     */
+    onRoundWin() {
+        if (!this.isGameActive || this.gameState === 'gameWin') return;
+
+        // Increment successful hits
+        this.successfulHits++;
+        console.log(`Hit ${this.successfulHits}/3 successful!`);
+
+        // Sync roundIndex with successfulHits for proper round UI update
+        this.roundIndex = this.successfulHits - 1;
+
+        // Determine if this is the last round (3rd successful hit)
+        let isGameWin = (this.successfulHits >= this.targetRounds);
+        console.log('遊戲狀態改為:', isGameWin ? 'gameWin' : 'roundWin');
+
+        this.gameState = isGameWin ? 'gameWin' : 'roundWin';
+
+        if (this.gameTimer) this.gameTimer.stop();
+
+        if (this.gameTimer && typeof this.gameTimer.getRemaining === 'function') {
+            if (this.isContinuousTimer) {
+                if (isGameWin) {
+                    this.totalUsedSeconds = Math.max(0, this.roundPerSeconds - this.gameTimer.getRemaining());
+                }
+            } else {
+                const used = Math.max(0, this.roundPerSeconds - this.gameTimer.getRemaining());
+                this.totalUsedSeconds += used;
+            }
+        }
+
+        this.enableGameInteraction(false);
+        this.updateRoundUI(true);
+
+        // Show feedback and bubble
+        if (isGameWin) {
+
+            this.label = this.add.image(1650, 350, 'game_success_label').setDepth(555);
+            this.showBubble('win', this.playerGender);
+        } else {
+
+            this.showBubble('noBubble', this.playerGender);
+        }
+    }
+
+    /**
+     * Override: Called when win bubble is closed - moves to next bar or ends game
+     */
+    onWinBubbleClose() {
+        if (!this.isGameActive) return;
+
+        if (this.gameState === 'roundWin') {
+            // For round win, move to next bar instead of nextRound()
+            this.time.delayedCall(500, () => {
+                this.nextBar();
+            });
+
+        } else if (this.gameState === 'gameWin') {
+            // Save game result
+            if (this.sceneIndex > 0) {
+                GameManager.saveGameResult(this.sceneIndex, true, this.totalUsedSeconds);
+                console.log(`遊戲 ${this.sceneIndex} 結束，總用時: ${this.totalUsedSeconds} 秒`);
+            }
+            this.showWin();
+            this.isGameActive = false;
+            this.gameState = 'completed';
+        }
+    }
+
+    nextBar() {
+        // Reset for next round
+        this.isHit = false;
+        this.arrow.x = this.centerX;
+        this.arrowSpeed = 10;
+
+        // Update bar image for next question
+        const barKeys = ['game2_bar1', 'game2_bar2', 'game2_bar3'];
+        this.bar.setTexture(barKeys[this.successfulHits]);
+
+        console.log(`Moving to bar ${this.successfulHits + 1}`);
+
+        // Clear feedback label
+        if (this.feedbackLabel) {
+            this.feedbackLabel.destroy();
+            this.feedbackLabel = null;
+        }
+
+        // Re-enable interaction and continue playing
+        this.gameState = 'playing';
+        this.isGameActive = true;
+        this.enableGameInteraction(true);
+
+        // Resume timer if continuous
+        if (this.gameTimer && this.isContinuousTimer) {
+            this.gameTimer.start();
+        }
     }
 
     resetForNewRound() {
-        // Clear all falling items from both group and array
-        if (this.fallingItemsGroup) {
-            this.fallingItemsGroup.clear(true, true); // Remove and destroy all children
+        // Reset game state
+        this.isHit = false;
+        this.successfulHits = 0;
+        this.arrowSpeed = 10;
+
+        if (this.arrow) {
+            this.arrow.x = this.centerX;
         }
 
-        for (let i = this.fallingItems.length - 1; i >= 0; i--) {
-            const item = this.fallingItems[i];
-            if (item) {
-                item.destroy();
-            }
-        }
-        this.fallingItems = [];
-
-        // Reset spawn timer
-        this.lastSpawnTime = null;
-        this.lastSuccessSpawnTime = null;
-        this.canSpawn = false;
-
-        // Reset player position to center
-        if (this.player) {
-            this.player.x = this.centerX;
-            this.player.y = 1000;
-            this.player.anims.play(`${this.genderKey}_middle_anim`, true);
-        }
-
-        // Reset player basket to match player position and update physics body
-        if (this.playerBasket && this.playerBasket.body) {
-            const newX = this.centerX;
-            const newY = 1000 - 450; // Same calculation as in update
-
-            this.playerBasket.x = newX;
-            this.playerBasket.y = newY;
-
-            // Important: Update the physics body position explicitly
-            this.playerBasket.body.reset(newX, newY);
-        }
-
-        // Reset fail speed
-        this.failSpeed = 4;
-        this.isSlowDown = false;
-
-        // Reset success counter
-        this.successCount = 0;
-
-        console.log('[GameScene_2] Reset for new round');
-    }
-
-
-    update() {
-
-        if (!this.canSpawn) return;
-
-        if (this.player && this.playerBasket) {
-            // Sync the invisible physics body - update both position and physics body
-            this.playerBasket.x = this.player.x;
-            this.playerBasket.y = this.player.y - 450;
-
-            // Update the physics body position to match
-            if (this.playerBasket.body) {
-                this.playerBasket.body.x = this.playerBasket.x - this.playerBasket.width / 2;
-                this.playerBasket.body.y = this.playerBasket.y - this.playerBasket.height / 2;
-            }
-
-            // // Redraw the visual box
-            // this.basketGfx.clear();
-            // this.basketGfx.lineStyle(2, 0x00ff00, 1); // Green border
-            // this.basketGfx.strokeRect(
-            //     this.playerBasket.x - 75, // Center it (150 width / 2)
-            //     this.playerBasket.y - 25, // Center it (50 height / 2)
-            //     this.playerBasket.width,
-            //     this.playerBasket.height
-            // );
-            // Spawn new fail item every 800ms
-            if (!this.lastSpawnTime) this.lastSpawnTime = this.time.now;
-            if (this.time.now - this.lastSpawnTime > 800) {
-                this.spawnRandomFailItem();
-                this.lastSpawnTime = this.time.now;
-            }
-
-            // Spawn success item on a separate timer (e.g., every 3-5 seconds)
-            if (!this.lastSuccessSpawnTime) this.lastSuccessSpawnTime = this.time.now;
-            if (this.time.now - this.lastSuccessSpawnTime > Phaser.Math.Between(1000, 2000)) {
-                this.spawnSuccessItem();
-                this.lastSuccessSpawnTime = this.time.now;
-            }
-
-            // Make all falling items fall
-            for (let i = this.fallingItems.length - 1; i >= 0; i--) {
-                const item = this.fallingItems[i];
-                if (item.active) {
-                    item.y += this.failSpeed; // fall speed
-                    if (item.y > this.maxY) {
-                        item.setActive(false).setVisible(false);
-                        this.fallingItems.splice(i, 1);
-                    }
-                }
-            }
+        if (this.bar) {
+            this.bar.setTexture('game2_bar1');
         }
     }
 
-    handleLose() {
-        if (this.gameState === 'gameLose' || this.gameState === 'gameWin') return;
-
-        if (!this.isSlowDown) {
-            this.failSpeed = this.slowDownSpeed;
-            this.isSlowDown = true;
-            console.log("Fail speed reduced for next rounds.");
-        } else {
-            this.currentFailCount = (this.currentFailCount || 0) + 1;
-            this.isGameActive = false;
-            this.gameState = 'gameLose';
-            this.fallingItems.forEach(item => item.destroy());
-            this.label = this.add.image(1650, 350, 'game_fail_label').setDepth(555);
-            if (this.gameTimer) this.gameTimer.stop();
-            this.enableGameInteraction(false);
-            this.updateRoundUI(false);
-
-            this.showBubble('tryagain');
+    enableGameInteraction(enabled) {
+        if (this.hitButton) {
+            if (enabled) {
+                this.hitButton.setInteractive();
+            } else {
+                this.hitButton.disableInteractive();
+            }
         }
+        this.allowToStart = enabled;
     }
 
     showWin() {
@@ -311,127 +282,5 @@ export class GameScene_2 extends BaseGameScene {
         objectPanel.setCloseCallBack(() => GameManager.backToMainStreet(this));
     }
 
-    spawnRandomFailItem() {
-        // Pick a random fail item key
-        const key = Phaser.Utils.Array.GetRandom(this.failItemKeys);
-        // Spawn at random x, always y = minY
-        const x = Phaser.Math.Between(this.minX, this.maxX);
 
-        const y = this.minY;
-        // Create the sprite
-        const item = this.physics.add.sprite(x, y, key).setOrigin(0.5, 0.5).setDepth(2);
-        item.isSuccessObject = false;
-
-        item.setActive(true).setVisible(true);
-        this.fallingItemsGroup.add(item);
-        this.fallingItems.push(item);
-    }
-
-    spawnSuccessItem() {
-        const key = 'game2_successobject';
-        // Spawn at random x, always y = minY
-        const x = Phaser.Math.Between(this.minX, this.maxX);
-
-        const y = this.minY;
-        // Create the sprite
-        const item = this.physics.add.sprite(x, y, key).setOrigin(0.5, 0.5).setDepth(2);
-        item.isSuccessObject = true;
-
-        item.setActive(true).setVisible(true);
-        this.fallingItemsGroup.add(item);
-        this.fallingItems.push(item);
-    }
-
-
-    handleItemCollection(item) {
-        if (!this.isGameActive || this.gameState === 'gameWin') return;
-
-        if (item.isSuccessObject) {
-            item.destroy();
-
-            // Increment success counter
-            this.successCount++;
-            console.log(`Success item collected! Count: ${this.successCount}/${this.targetRounds}`);
-
-            // Update round UI to show progress (uses current roundIndex)
-            this.updateRoundUI(true);
-
-            // Only trigger win when all required successes are collected
-            if (this.successCount >= this.targetRounds) {
-                this.onRoundWin();
-            } else {
-                // Increment roundIndex for next collection's UI update
-                this.roundIndex++;
-            }
-        } else {
-            item.destroy();
-            this.fallingItemsGroup.remove(item);
-            this.handleLose();
-        }
-    }
-    createAnimations() {
-        // Boy animations
-        this.anims.create({
-            key: 'boy_fail_anim',
-            frames: this.anims.generateFrameNumbers('boy_fail', { start: 0, end: 66 }),
-            frameRate: 30,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'boy_left_anim',
-            frames: this.anims.generateFrameNumbers('boy_left', { start: 0, end: 66 }),
-            frameRate: 30,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'boy_middle_anim',
-            frames: this.anims.generateFrameNumbers('boy_middle', { start: 0, end: 66 }),
-            frameRate: 30,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'boy_right_anim',
-            frames: this.anims.generateFrameNumbers('boy_right', { start: 0, end: 66 }),
-            frameRate: 30,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'boy_success_anim',
-            frames: this.anims.generateFrameNumbers('boy_success', { start: 0, end: 66 }),
-            frameRate: 30,
-            repeat: -1
-        });
-
-        // Girl animations
-        this.anims.create({
-            key: 'girl_fail_anim',
-            frames: this.anims.generateFrameNumbers('girl_fail', { start: 0, end: 66 }),
-            frameRate: 30,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'girl_left_anim',
-            frames: this.anims.generateFrameNumbers('girl_left', { start: 0, end: 66 }),
-            frameRate: 30,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'girl_middle_anim',
-            frames: this.anims.generateFrameNumbers('girl_middle', { start: 0, end: 66 }),
-            frameRate: 30,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'girl_right_anim',
-            frames: this.anims.generateFrameNumbers('girl_right', { start: 0, end: 66 }),
-            frameRate: 30,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'girl_success_anim',
-            frames: this.anims.generateFrameNumbers('girl_success', { start: 0, end: 66 }),
-            frameRate: 30,
-            repeat: -1
-        });
-    }
 }
