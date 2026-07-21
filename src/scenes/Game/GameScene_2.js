@@ -93,7 +93,7 @@ export class GameScene_2 extends BaseGameScene {
             this.hitButton.setTexture('game2_hit_button');
         });
 
-        this.drawDebugRanges();
+        // this.drawDebugRanges();
     }
 
     drawDebugRanges() {
