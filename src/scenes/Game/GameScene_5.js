@@ -141,42 +141,42 @@ export class GameScene_5 extends BaseGameScene {
             {
                 q: 1,
                 fillPositions: [
-                    { x: 625, y: 580, targetKey: 'game5_q1a_correct_answer1' },
+                    { x: 630, y: 575, targetKey: 'game5_q1a_correct_answer1' },
                     { x: 1055, y: 580, targetKey: 'game5_q1b_correct_answer1' }
                 ]
             },
             {
                 q: 2,
                 fillPositions: [
-                    { x: 625, y: 580, targetKey: 'game5_q2a_correct_answer1' },
+                    { x: 630, y: 575, targetKey: 'game5_q2a_correct_answer1' },
                     { x: 1055, y: 580, targetKey: 'game5_q2b_correct_answer1' }
                 ]
             },
             {
                 q: 3,
                 fillPositions: [
-                    { x: 570, y: 580, targetKey: 'game5_q3a_correct_answer1' },
-                    { x: 1010, y: 580, targetKey: 'game5_q3b_correct_answer1' }
+                    { x: 570, y: 575, targetKey: 'game5_q3a_correct_answer1' },
+                    { x: 1010, y: 575, targetKey: 'game5_q3b_correct_answer1' }
                 ]
             }
         ];
 
         const currentFillPositions = this.targetContents[this.currentIndex - 1].fillPositions;
 
-        // Debug graphics for fill positions
-        if (!this.fillDebugGraphics) {
-            this.fillDebugGraphics = this.add.graphics();
-        }
-        this.fillDebugGraphics.clear();
-        this.fillDebugGraphics.setDepth(250);
-        this.fillDebugGraphics.lineStyle(3, 0x00ff00, 1); // Green border
-        this.fillDebugGraphics.fillStyle(0x00ff00, 0.3); // Semi-transparent green fill
+        // // Debug graphics for fill positions
+        // if (!this.fillDebugGraphics) {
+        //     this.fillDebugGraphics = this.add.graphics();
+        // }
+        // this.fillDebugGraphics.clear();
+        // this.fillDebugGraphics.setDepth(250);
+        // this.fillDebugGraphics.lineStyle(3, 0x00ff00, 1); // Green border
+        // this.fillDebugGraphics.fillStyle(0x00ff00, 0.3); // Semi-transparent green fill
 
-        currentFillPositions.forEach((slot, index) => {
-            const radius = 30;
-            this.fillDebugGraphics.strokeCircle(slot.x, slot.y, radius);
-            this.fillDebugGraphics.fillCircle(slot.x, slot.y, radius);
-        });
+        // currentFillPositions.forEach((slot, index) => {
+        //     const radius = 30;
+        //     this.fillDebugGraphics.strokeCircle(slot.x, slot.y, radius);
+        //     this.fillDebugGraphics.fillCircle(slot.x, slot.y, radius);
+        // });
 
         // Build answerKey → fillAnswerKey lookup
         const choice = this.choices[this.currentIndex - 1];
