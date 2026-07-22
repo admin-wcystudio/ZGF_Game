@@ -24,8 +24,9 @@ export class GameScene_4 extends BaseGameScene {
             this.load.image(`game4_card${i}_img`, `${path}game4_card${i}_large_img.png`);
             this.load.image(`game4_card${i}_text`, `${path}game4_card${i}_large_text.png`);
         }
-        this.load.image('game4_npc_box_win', `${path}game4_npc_box2.png`);
-        this.load.image('game4_npc_box_tryagain', `${path}game4_npc_box3.png`);
+        this.load.image('game4_npc_box_win', `${path}game4_npc_box4.png`);
+        this.load.image('game4_npc_box_win1', `${path}game4_npc_box5.png`);
+        this.load.image('game4_npc_box_tryagain', `${path}game4_npc_box6.png`);
         this.load.image('game4_preview', `${path}game4_success_preview.png`);
 
         this.load.image('game4_object_description', `${path}game4_object_description.png`);
@@ -40,15 +41,19 @@ export class GameScene_4 extends BaseGameScene {
         this.isChecked = false;
         this.totalPairs = 4;
 
+        const cardSpacingX = 280;
+        const topRowY = centerY - 80;
+        const bottomRowY = centerY + 250;
+
         this.spawnCardPositions = [
-            { x: centerX - 500, y: centerY - 100 },
-            { x: centerX - 200, y: centerY - 100 },
-            { x: centerX + 150, y: centerY - 100 },
-            { x: centerX + 500, y: centerY - 100 },
-            { x: centerX - 500, y: centerY + 240 },
-            { x: centerX - 200, y: centerY + 240 },
-            { x: centerX + 150, y: centerY + 240 },
-            { x: centerX + 500, y: centerY + 240 }
+            { x: centerX - cardSpacingX * 1.5, y: topRowY },
+            { x: centerX - cardSpacingX * 0.5, y: topRowY },
+            { x: centerX + cardSpacingX * 0.5, y: topRowY },
+            { x: centerX + cardSpacingX * 1.5, y: topRowY },
+            { x: centerX - cardSpacingX * 1.5, y: bottomRowY },
+            { x: centerX - cardSpacingX * 0.5, y: bottomRowY },
+            { x: centerX + cardSpacingX * 0.5, y: bottomRowY },
+            { x: centerX + cardSpacingX * 1.5, y: bottomRowY }
         ];
 
         this.cardTypes = [
@@ -71,7 +76,7 @@ export class GameScene_4 extends BaseGameScene {
             targetRounds: 1,
             roundPerSeconds: 60,
             isAllowRoundFail: false,
-            isContinuousTimer: true,
+            isContinuousTimer: false,
             sceneIndex: 4
         });
     }
@@ -93,7 +98,7 @@ export class GameScene_4 extends BaseGameScene {
             const cardBack = this.add.image(0, 0, 'game4_card_back')
                 .setInteractive({ useHandCursor: true })
                 .setVisible(true)
-                .setScale(1.2);
+                .setScale(1.15);
 
             // Card front (hidden initially) - scale to match card back size
             const cardFront = this.add.image(0, 0, cardType)
@@ -110,11 +115,11 @@ export class GameScene_4 extends BaseGameScene {
             card.isMatched = false;
 
             cardBack.on('pointerover', () => {
-                cardBack.setScale(1.4);
+                cardBack.setScale(1.3);
             });
 
             cardBack.on('pointerout', () => {
-                cardBack.setScale(1.2);
+                cardBack.setScale(1.15);
             });
 
             // Add click handler
@@ -245,11 +250,19 @@ export class GameScene_4 extends BaseGameScene {
     }
 
     showWin() {
-        this.winPreview = this.add.image(this.centerX, this.centerY + 100, 'game4_preview').setDepth(1000)
-            .setInteractive({ useHandCursor: true }).setScale(1.3)
+
+        const centerY = this.cameras.main.height * 0.8;
+
+        const winDialog = this.add.image(this.centerX, centerY, 'game4_npc_box_win1').setDepth(1001);
+        winDialog.setInteractive({ useHandCursor: true })
             .on('pointerdown', () => {
-                this.winPreview.destroy();
-                this.showObjectPanel();
+                winDialog.destroy();
+                this.winPreview = this.add.image(this.centerX, this.centerY + 50, 'game4_preview').setDepth(1000)
+                    .setInteractive({ useHandCursor: true }).setScale(1.3)
+                    .on('pointerdown', () => {
+                        this.winPreview.destroy();
+                        this.showObjectPanel();
+                    });
             });
 
     }
