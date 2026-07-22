@@ -390,9 +390,10 @@ export class CustomFailPanel extends Phaser.GameObjects.Container {
 
 
 export class QuestionPanel extends Phaser.GameObjects.Container {
-    constructor(scene, contents, onComplete) {
+    constructor(scene, contents, titles, onComplete) {
         super(scene, 960, 540);
         this.scene = scene;
+        this.titles = titles;
         this.onComplete = onComplete;
         this.currentIndex = 0;
         this.selectedAnswerIndex = -1;
@@ -402,14 +403,16 @@ export class QuestionPanel extends Phaser.GameObjects.Container {
 
         // Create image for displaying question content
         this.contentImage = scene.add.image(0, 50, '').setDepth(200).setVisible(false);
-        this.add([this.contentImage]);
+        this.titleImage = scene.add.image(0, -340, '').setDepth(1099).setVisible(false);
+        this.add([this.contentImage, this.titleImage]);
 
-        // 2. 確認按鈕 (初始隱藏)
         this.confirmBtn = new CustomButton(scene, 0, 380,
-            'game5_confirm_button', 'game5_confirm_button_select', () => {
+            'game1_confirm_button', 'game1_confirm_button_select', () => {
                 this.checkAnswer();
             });
+
         this.add(this.confirmBtn);
+
 
         this.optionButtons = [];
         this.showQuestion();
@@ -417,8 +420,11 @@ export class QuestionPanel extends Phaser.GameObjects.Container {
     }
 
     showQuestion() {
+        this.title = this.titles[this.currentIndex];
+        this.titleImage.setTexture(this.title).setVisible(true);
+
         const q = this.questions[this.currentIndex];
-        this.contentImage.setTexture(q.content).setVisible(true);
+        this.contentImage.setTexture(q.question).setVisible(true);
         if (this.optionButtons) {
             this.optionButtons.forEach(btn => btn.destroy());
         }
@@ -456,56 +462,38 @@ export class QuestionPanel extends Phaser.GameObjects.Container {
         if (this.selectedAnswerIndex === q.answer) {
             if (this.scene.gameTimer) this.scene.gameTimer.stop();
 
-            // 更新 Scene 的圓圈 UI
             if (this.scene.updateRoundUI) {
                 this.scene.updateRoundUI(true);
                 this.scene.roundIndex++;
             }
-            // Support both addOn (old) and nextDialog/characterDialog (new) formats
-            const dialogKey = q.addOn || q.nextDialog;
-            if (dialogKey) {
-                this.showAddOn(dialogKey, q.characterDialog);
+            const descriptionKey = q.description;
+            if (descriptionKey) {
+                this.showAddOn(q.description);
             } else {
                 this.nextQuestion();
             }
         } else {
             console.log("答錯了 , correct : " + q.answer);
-            // Hide the question panel to show bubbles properly
             this.setVisible(false);
-            // Call handleLose which shows fail label, tryagain bubble, and fail panel
             this.scene.handleLose();
         }
     }
 
-    showAddOn(dialogKey, characterDialogKey) {
+    showAddOn(descriptionKey) {
         this.optionButtons.forEach(btn => btn.setVisible(false));
         this.contentImage.setVisible(false);
         this.confirmBtn.setVisible(false);
 
-        const dialogImg = this.scene.add.image(0, 350, dialogKey).setInteractive({ useHandCursor: true });
-        this.add(dialogImg);
+        const descrImg = this.scene.add.image(0, 0, descriptionKey)
+            .setInteractive({ useHandCursor: true }).setVisible(true).setDepth(299);
+        this.add(descrImg);
 
-        dialogImg.once('pointerdown', () => {
-            dialogImg.destroy();
-
-            // If there's a character dialogue, show it next
-            if (characterDialogKey) {
-                this.showCharacterDialog(characterDialogKey);
-            } else {
-                this.nextQuestion();
-            }
-        });
-    }
-
-    showCharacterDialog(characterDialogKey) {
-        const charImg = this.scene.add.image(0, 350, characterDialogKey).setInteractive({ useHandCursor: true });
-        this.add(charImg);
-
-        charImg.once('pointerdown', () => {
-            charImg.destroy();
+        descrImg.once('pointerdown', () => {
+            descrImg.destroy();
             this.nextQuestion();
         });
     }
+
 
     nextQuestion() {
         this.currentIndex++;

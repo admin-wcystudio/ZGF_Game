@@ -62,37 +62,45 @@ export class GameScene_1 extends BaseGameScene {
                 question: 'game1_q1',
                 description: 'game1_q1_description',
                 options: ['game1_q1_a_button', 'game1_q1_b_button', 'game1_q1_c_button', 'game1_q1_d_button'],
-                answer: 1,
+                answer: 2,
 
             },
             {
                 question: 'game1_q2',
                 description: 'game1_q2_description',
                 options: ['game1_q2_a_button', 'game1_q2_b_button', 'game1_q2_c_button', 'game1_q2_d_button'],
-                answer: 2,
+                answer: 1,
 
             },
             {
                 question: 'game1_q3',
                 description: 'game1_q3_description',
                 options: ['game1_q3_a_button', 'game1_q3_b_button', 'game1_q3_c_button', 'game1_q3_d_button'],
-                answer: 1,
+                answer: 2,
 
             }, {
                 question: 'game1_q4',
                 description: 'game1_q4_description',
                 options: ['game1_q4_a_button', 'game1_q4_b_button', 'game1_q4_c_button', 'game1_q4_d_button'],
-                answer: 3,
+                answer: 0,
             },
             {
                 question: 'game1_q5',
                 description: 'game1_q5_description',
                 options: ['game1_q5_a_button', 'game1_q5_b_button', 'game1_q5_c_button', 'game1_q5_d_button'],
-                answer: 2,
+                answer: 3,
             }
         ]
 
-        this.questionPanel = new QuestionPanel(this, allQuestions, () => {
+        const questionTitles = [
+            "game1_q1_title",
+            "game1_q2_title",
+            "game1_q3_title"
+        ]
+
+        const selectedQuestions = Phaser.Utils.Array.Shuffle([...allQuestions]).slice(0, 3);
+
+        this.questionPanel = new QuestionPanel(this, selectedQuestions, questionTitles, () => {
         });
         this.questionPanel.setDepth(559).setVisible(false);
     }
