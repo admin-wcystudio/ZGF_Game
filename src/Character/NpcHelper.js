@@ -12,6 +12,9 @@ export default class NpcHelper {
         npc.animKey = animKey;
         npc.baseKey = key;
         npc.baseAnimKey = animKey;
+        npc.glowKey = `${key}_select`;
+        npc.glowAnimKey = animKey ? `${npc.glowKey}_anim` : null;
+        npc.isGlow = false;
         npc.setInteractive({ useHandCursor: true });
         npc.id = id;
         npc.proximityDistance = 300;
@@ -19,13 +22,14 @@ export default class NpcHelper {
         return npc;
     }
 
-    static createNpcItem(scene, id, x, y, npcScale = 2, key, glowKey = null, depth = 10,) {
+    static createNpcItem(scene, id, x, y, npcScale = 2, key, glowKey = null, depth = 10, bubbles = []) {
 
         let npcItem;
 
         npcItem = scene.add.image(x, y, key).setDepth(depth);
 
         npcItem.setScale(npcScale);
+        npcItem.bubbles = bubbles;
         npcItem.baseKey = key;
         npcItem.glowKey = glowKey ?? `${key}_glow`;
         npcItem.isGlow = false;

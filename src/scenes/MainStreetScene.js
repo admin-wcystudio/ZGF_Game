@@ -310,7 +310,7 @@ export class MainStreetScene extends Phaser.Scene {
         const n4 = NpcHelper.createNpc(this, 4, 4800, 650, 2, 'npc4', npc4_bubbles, 6, 'npc4_anim');
         const n5 = NpcHelper.createNpc(this, 5, 7000, 600, 2, 'npc5', npc5_bubbles, 6, 'npc5_anim');
         const n6 = NpcHelper.createNpc(this, 6, 7450, 650, 2, 'npc6', npc6_bubbles, 6, 'npc6_anim');
-        const n7 = NpcHelper.createNpcItem(this, 7, 6950, 350, 1, 'npc7', 'npc7_select', 6);
+        const n7 = NpcHelper.createNpcItem(this, 7, 6950, 350, 1, 'npc7', 'npc7_select', 6, npc7_bubbles);
 
         this.interactiveNpcs.push(n1);
         this.interactiveNpcs.push(n2);
@@ -328,8 +328,7 @@ export class MainStreetScene extends Phaser.Scene {
                 if (npc.canInteract) {
                     const gameNumber = npcGameMap[npc.id] ?? (index + 1);
                     const sceneKey = `GameScene_${gameNumber}`;
-                    const characterbubble = `game${gameNumber}_${genderKey}_bubble`;
-                    this.loadBubble(0, npc.bubbles, sceneKey, npc, characterbubble);
+                    this.loadBubble(0, npc.bubbles, sceneKey, npc);
                 }
             });
         });
@@ -371,56 +370,61 @@ export class MainStreetScene extends Phaser.Scene {
         this.currentNpcActivated = null;
 
         allNpcs.forEach(npc => {
-            const dist = Math.abs(this.playerSprite.x - npc.x);
+            const inRange = Math.abs(this.playerSprite.x - npc.x) < npc.proximityDistance;
+            const canGlow = this.isNpcAvailable(npc) && inRange;
 
-            if (dist < npc.proximityDistance) {
-                npc.canInteract = true;
-                //  npc.setTint(0x888888);
+            npc.canInteract = canGlow;
+
+            if (canGlow) {
                 this.switchToGlowAndBack(npc);
-            } else {
-                npc.canInteract = false;
-                //  npc.setTint(0xffffff);
-                this.restoreFromGlow(npc);
+                return;
+            }
 
-                // IF THIS NPC was the one owning the active bubbles
-                if ((this.currentActiveBubble && this.currentActiveBubble.ownerNpc === npc) ||
-                    (this.characterActiveBubble && this.characterActiveBubble.ownerNpc === npc)) {
+            this.restoreFromGlow(npc);
 
-                    // 1. Clear all pending timers to prevent bubbles "popping up" later
-                    this.bubbleTimers.forEach(t => t.remove());
-                    this.bubbleTimers = [];
+            // IF THIS NPC was the one owning the active bubble
+            if (this.currentActiveBubble && this.currentActiveBubble.ownerNpc === npc) {
 
-                    // 2. Destroy NPC Bubble
-                    if (this.currentActiveBubble) {
-                        this.currentActiveBubble.destroy();
-                        this.currentActiveBubble = null;
-                    }
+                // 1. Clear all pending timers to prevent bubbles "popping up" later
+                this.bubbleTimers.forEach(t => t.remove());
+                this.bubbleTimers = [];
 
-                    // 3. Destroy Character Bubble
-                    if (this.characterActiveBubble) {
-                        this.characterActiveBubble.destroy();
-                        this.characterActiveBubble = null;
-                    }
+                // 2. Destroy NPC Bubble
+                if (this.currentActiveBubble) {
+                    this.currentActiveBubble.destroy();
+                    this.currentActiveBubble = null;
                 }
+
             }
         });
     }
 
+    isNpcAvailable(npc) {
+        // Centralized hook for availability rules.
+        return npc !== null && npc !== undefined;
+    }
+
     switchToGlowAndBack(npc, glow) {
         if (!npc || npc.isGlow) return;
-        if (!npc.glowKey || !npc.glowAnimKey) return;
+        if (!npc.glowKey && !npc.glowAnimKey) return;
 
-        npc.setTexture(npc.glowKey);
-        npc.play(npc.glowAnimKey, true);
+        if (npc.glowAnimKey && npc.play) {
+            npc.play(npc.glowAnimKey, true);
+        } else if (npc.glowKey) {
+            npc.setTexture(npc.glowKey);
+        }
         npc.isGlow = true;
     }
 
     restoreFromGlow(npc) {
         if (!npc || !npc.isGlow) return;
-        if (!npc.baseKey || !npc.baseAnimKey) return;
+        if (!npc.baseKey && !npc.baseAnimKey) return;
 
-        npc.setTexture(npc.baseKey);
-        npc.play(npc.baseAnimKey, true);
+        if (npc.baseAnimKey && npc.play) {
+            npc.play(npc.baseAnimKey, true);
+        } else if (npc.baseKey) {
+            npc.setTexture(npc.baseKey);
+        }
         npc.isGlow = false;
     }
 
@@ -450,13 +454,10 @@ export class MainStreetScene extends Phaser.Scene {
 
 
 
-    loadBubble(index = 0, bubbles, sceneKey, targetNpc, characterbubble) {
+    loadBubble(index = 0, bubbles, sceneKey, targetNpc) {
 
         if (this.currentActiveBubble) {
             this.currentActiveBubble.destroy();
-        }
-        if (this.characterActiveBubble) {
-            this.characterActiveBubble.destroy();
         }
 
         this.bubbleImg = this.add.image(this.centerX, 900, bubbles[index])
@@ -470,23 +471,13 @@ export class MainStreetScene extends Phaser.Scene {
 
         this.switchTalkingAnimation(this.genderKey, targetNpc.x < this.playerSprite.x);
 
-        this.characterBubbleImg = this.add.image(this.centerX, 900, characterbubble)
-            .setDepth(200)
-            .setInteractive({ useHandCursor: true })
-            .setVisible(false)
-            .setScrollFactor(0);
-
-        this.characterActiveBubble = this.characterBubbleImg;
-        this.characterActiveBubble.ownerNpc = targetNpc;
-
-
         this.bubbleImg.on('pointerdown', () => {
             this.bubbleImg.destroy();
             this.currentActiveBubble = null;
 
             // If there is another bubble in the sequence, show it instead of the character bubble.
             if (index < bubbles.length - 1) {
-                //a  this.loadBubble(index + 1, bubbles, sceneKey, targetNpc, characterbubble);
+                this.loadBubble(index + 1, bubbles, sceneKey, targetNpc);
                 return;
             }
 
@@ -508,12 +499,6 @@ export class MainStreetScene extends Phaser.Scene {
             ease: 'Back.easeOut'
         });
 
-        this.tweens.add({
-            targets: this.characterBubbleImg,
-            scale: { from: 0.5, to: 1 },
-            duration: 200,
-            ease: 'Back.easeOut'
-        });
     }
 
 
