@@ -1,14 +1,14 @@
 export default class NpcHelper {
 
-    static createNpc(scene, id, x, y, npcScale = 2, key, depth = 10, animKey = null) {
+    static createNpc(scene, id, x, y, npcScale = 2, key, bubbles = [], depth = 10, animKey = null) {
 
         let npc;
 
         npc = scene.add.sprite(x, y, key).setDepth(depth);
         npc.play(animKey);
 
-
-        npc.setScale(2);
+        npc.setScale(npcScale);
+        npc.bubbles = bubbles;
         npc.animKey = animKey;
         npc.baseKey = key;
         npc.baseAnimKey = animKey;
