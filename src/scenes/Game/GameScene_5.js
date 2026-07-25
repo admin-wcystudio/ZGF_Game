@@ -373,14 +373,4 @@ export class GameScene_5 extends BaseGameScene {
         objectPanel.setCloseCallBack(() => GameManager.backToMainStreet(this));
     }
 
-
-    showFailPanel() {
-        const popupPanel = new CustomFailPanel(this, 960, 540, () => {
-            popupPanel.destroy();
-            this.restartGame(); // 重新開始整個遊戲
-        }, () => {
-            //GameManager.backToMainStreet(this);
-        });
-        popupPanel.setDepth(1000);
-    }
 }

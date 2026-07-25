@@ -204,7 +204,7 @@ export class MainStreetScene extends Phaser.Scene {
         const genderKey = this.genderKey;
 
         const playerPos = localStorage.getItem('playerPosition')
-            ? JSON.parse(localStorage.getItem('playerPosition')) : { x: 6500, y: 700 };
+            ? JSON.parse(localStorage.getItem('playerPosition')) : { x: 1500, y: 700 };
         this.playerPos = playerPos;
 
 
