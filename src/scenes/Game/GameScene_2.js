@@ -26,6 +26,8 @@ export class GameScene_2 extends BaseGameScene {
         this.load.image('game2_hit_button_select', `${path}game2_click_button_select.png`)
 
         this.load.image('game2_object_description', path + 'game2_object_description.png');
+        this.load.image('game2_object_description1', path + 'game2_object_description1.png');
+        this.load.image('game2_object_description2', path + 'game2_object_description2.png');
         this.load.image('game2_target_arrow', `${path}game2_arrow.png`);
 
         for (let i = 1; i <= 3; i++) {
@@ -276,7 +278,20 @@ export class GameScene_2 extends BaseGameScene {
             content: 'game2_object_description',
             closeBtn: 'close_btn',
             closeBtnClick: 'close_btn_click'
-        }]);
+        },
+        {
+            content: 'game2_object_description1',
+            closeBtn: 'close_btn',
+            closeBtnClick: 'close_btn_click'
+        },
+        {
+            content: 'game2_object_description2',
+            closeBtn: 'close_btn',
+            closeBtnClick: 'close_btn_click'
+        }
+        ]);
+        objectPanel.setNextBtnPosition(0, 100);
+        objectPanel.setPrevBtnPosition(0, 100);
         objectPanel.setDepth(1000);
         objectPanel.show();
         objectPanel.setCloseCallBack(() => GameManager.backToMainStreet(this));

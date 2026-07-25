@@ -84,6 +84,15 @@ export class CustomPanel extends BasePanel {
         this.refresh();
     }
 
+
+    setNextBtnPosition(x, y) {
+        this.nextBtn.setPosition(570 + x, 260 + y);
+    }
+
+    setPrevBtnPosition(x, y) {
+        this.prevBtn.setPosition(-570 + x, 260 + y);
+    }
+
     setCloseCallBack(callback) {
         this.customCloseCallback = callback;
     }
