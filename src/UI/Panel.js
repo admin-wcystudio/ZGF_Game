@@ -454,26 +454,57 @@ export class QuestionPanel extends Phaser.GameObjects.Container {
         this.onComplete = onComplete;
         this.currentIndex = 0;
         this.selectedAnswerIndex = -1;
+        this.phase = 'question';
 
-        // Store the questions array
         this.questions = contents;
 
-        // Create image for displaying question content
         this.contentImage = scene.add.image(0, 50, '').setDepth(200).setVisible(false);
         this.titleImage = scene.add.image(0, -340, '').setDepth(1099).setVisible(false);
         this.add([this.contentImage, this.titleImage]);
 
+        this.nextBtn = new CustomButton(scene, 620, 30, 'next_button', 'next_button_click', () => {
+            this.setPhase('answer');
+        });
+        this.prevBtn = new CustomButton(scene, -650, 30, 'prev_button', 'prev_button_click', () => {
+            this.setPhase('question');
+        });
         this.confirmBtn = new CustomButton(scene, 0, 380,
             'game1_confirm_button', 'game1_confirm_button_select', () => {
                 this.checkAnswer();
             });
 
-        this.add(this.confirmBtn);
-
+        this.add([this.nextBtn, this.prevBtn, this.confirmBtn]);
 
         this.optionButtons = [];
         this.showQuestion();
         scene.add.existing(this);
+    }
+
+    isPagedQuestion() {
+        const q = this.questions[this.currentIndex];
+        return !!(q && q.paged);
+    }
+
+    setPhase(phase) {
+        this.phase = phase;
+        const paged = this.isPagedQuestion();
+        const isQuestion = phase === 'question';
+
+        this.contentImage.setVisible(!paged || isQuestion);
+        this.setButtonVisible(this.nextBtn, paged && isQuestion);
+        this.setButtonVisible(this.prevBtn, paged && !isQuestion);
+        this.setButtonVisible(this.confirmBtn, !paged || !isQuestion);
+        this.optionButtons.forEach(btn => this.setButtonVisible(btn, !paged || !isQuestion));
+    }
+
+    setButtonVisible(button, visible) {
+        if (!button) return;
+        button.setVisible(visible);
+        if (visible) {
+            button.setInteractive({ useHandCursor: true });
+        } else {
+            button.disableInteractive();
+        }
     }
 
     showQuestion() {
@@ -487,17 +518,21 @@ export class QuestionPanel extends Phaser.GameObjects.Container {
         }
         this.optionButtons = [];
 
-        const options = q.options || q.option; // Support both 'options' and 'option'
+        const options = q.options || q.option;
+        const startY = q.paged ? -160 : -100;
         options.forEach((optKey, index) => {
-            const y = -100 + index * 120;
+            const y = startY + index * 120;
             const btn = new CustomButton(this.scene, 0, y, optKey, `${optKey}_select`,
                 () => {
                     this.selectedAnswer(btn, index);
                 });
 
-            this.add(btn); // 加入 Container
-            this.optionButtons.push(btn); // 加入陣列追蹤
+            this.add(btn);
+            this.optionButtons.push(btn);
         });
+
+        this.selectedAnswerIndex = -1;
+        this.setPhase(q.paged ? 'question' : 'answer');
     }
 
     handleSelect(index) {
@@ -540,6 +575,8 @@ export class QuestionPanel extends Phaser.GameObjects.Container {
         this.optionButtons.forEach(btn => btn.setVisible(false));
         this.contentImage.setVisible(false);
         this.confirmBtn.setVisible(false);
+        if (this.nextBtn) this.nextBtn.setVisible(false);
+        if (this.prevBtn) this.prevBtn.setVisible(false);
 
         const descrImg = this.scene.add.image(0, 0, descriptionKey)
             .setInteractive({ useHandCursor: true }).setVisible(true).setDepth(299);

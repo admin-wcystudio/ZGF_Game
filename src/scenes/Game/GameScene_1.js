@@ -89,6 +89,7 @@ export class GameScene_1 extends BaseGameScene {
                 description: 'game1_q5_description',
                 options: ['game1_q5_a_button', 'game1_q5_b_button', 'game1_q5_c_button', 'game1_q5_d_button'],
                 answer: 3,
+                paged: true
             }
         ]
 
