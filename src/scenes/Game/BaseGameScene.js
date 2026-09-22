@@ -2,6 +2,7 @@ import { CustomButton } from '../../UI/Button.js';
 import UIHelper from '../../UI/UIHelper.js';
 import GameManager from '../GameManager.js';
 import { CustomPanel, CustomFailPanel } from '../../UI/Panel.js';
+import VoiceOverHelper from '../../Audio/VoiceOverHelper.js';
 
 /**
  * Enhanced BaseGameScene
@@ -153,6 +154,7 @@ export default class BaseGameScene extends Phaser.Scene {
             .setDepth(this.config.depthBubble)
             .setScrollFactor(0)
             .setInteractive({ useHandCursor: true });
+        VoiceOverHelper.playBubbleVo(this, targetKey);
         this.tweens.add({
             targets: this.currentBubbleImg,
             scale: { from: 0.5, to: 1 },
@@ -163,6 +165,7 @@ export default class BaseGameScene extends Phaser.Scene {
         const closeBubble = () => {
             if (closed) return;
             closed = true;
+            VoiceOverHelper.stop(this);
             if (this.currentBubbleImg) {
                 this.currentBubbleImg.destroy();
                 this.currentBubbleImg = null;

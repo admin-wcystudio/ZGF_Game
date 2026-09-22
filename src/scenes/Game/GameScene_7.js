@@ -2,6 +2,7 @@ import BaseGameScene from './BaseGameScene.js';
 import { CustomButton } from '../../UI/Button.js';
 import { CustomPanel, CustomFailPanel } from '../../UI/Panel.js';
 import GameManager from '../GameManager.js';
+import VoiceOverHelper from '../../Audio/VoiceOverHelper.js';
 
 
 export class GameScene_7 extends BaseGameScene {
@@ -308,8 +309,10 @@ export class GameScene_7 extends BaseGameScene {
         const centerY = this.cameras.main.height * 0.8;
 
         const winDialog = this.add.image(this.centerX, centerY, 'game7_npc_box_win1').setDepth(1001);
+        VoiceOverHelper.playBubbleVo(this, 'game7_npc_box_win1');
         winDialog.setInteractive({ useHandCursor: true });
         winDialog.on('pointerdown', () => {
+            VoiceOverHelper.stop(this);
             winDialog.destroy();
             this.playFinalVideo();
         });
@@ -323,8 +326,10 @@ export class GameScene_7 extends BaseGameScene {
         video.on('complete', () => {
             this.time.delayedCall(1000, () => {
                 const finalDialog = this.add.image(this.centerX, centerY, 'game7_final_dialog').setDepth(1002);
+                VoiceOverHelper.playBubbleVo(this, 'game7_final_dialog');
                 finalDialog.setInteractive({ useHandCursor: true });
                 finalDialog.on('pointerdown', () => {
+                    VoiceOverHelper.stop(this);
                     finalDialog.destroy();
                     this.showWinPreview();
                 });

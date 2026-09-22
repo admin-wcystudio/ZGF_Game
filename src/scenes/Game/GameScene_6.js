@@ -2,6 +2,7 @@ import BaseGameScene from './BaseGameScene.js';
 import { CustomButton } from '../../UI/Button.js';
 import { CustomPanel, CustomFailPanel } from '../../UI/Panel.js';
 import GameManager from '../GameManager.js';
+import VoiceOverHelper from '../../Audio/VoiceOverHelper.js';
 
 
 export class GameScene_6 extends BaseGameScene {
@@ -286,8 +287,10 @@ export class GameScene_6 extends BaseGameScene {
         const centerY = this.cameras.main.height * 0.8;
         this.npcBox = this.add.image(centerX, centerY, 'game6_npc_box_win_01')
             .setDepth(1000).setInteractive({ useHandCursor: true });
+        VoiceOverHelper.playBubbleVo(this, 'game6_npc_box_win_01');
 
         this.npcBox.once('pointerdown', () => {
+            VoiceOverHelper.stop(this);
             this.npcBox.destroy();
             this.npcBox = null;
             GameManager.backToMainStreet(this);

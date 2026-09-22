@@ -1,4 +1,5 @@
 import { CustomButton, CustomButton2 } from './Button.js';
+import VoiceOverHelper from '../Audio/VoiceOverHelper.js';
 /**
  * BASE PANEL CLASS
  * Provides common functionality for all game overlays
