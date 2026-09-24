@@ -329,6 +329,12 @@ export class GameScene_3 extends BaseGameScene {
 
 
     onWinBubbleClose() {
+        if (this.gameState === 'gameWin' && this.sceneIndex > 0) {
+            GameManager.saveGameResult(this.sceneIndex, true, this.totalUsedSeconds);
+            this.isGameActive = false;
+            this.gameState = 'completed';
+        }
+
         const centerX = this.cameras.main.width / 2;
 
         this.successDescription = this.add.image(centerX, this.centerY, 'game3_success_description').setDepth(1000)
