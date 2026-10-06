@@ -182,6 +182,7 @@ export class MainStreetScene extends Phaser.Scene {
     }
 
     create() {
+        GameManager.startSessionClock();
         VoiceOverHelper.ensureBgm(this);
 
         this.input.on('pointerup', () => {

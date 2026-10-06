@@ -4,6 +4,24 @@ import { CustomPanel, SettingPanel } from '../UI/Panel.js';
 import NpcHelper from '../Character/NpcHelper.js';
 
 export default class GameManager {
+    static SESSION_START_KEY = 'sessionStart_ZGF';
+
+    static startSessionClock() {
+        if (!localStorage.getItem(GameManager.SESSION_START_KEY)) {
+            localStorage.setItem(GameManager.SESSION_START_KEY, String(Date.now()));
+        }
+    }
+
+    static clearSessionClock() {
+        localStorage.removeItem(GameManager.SESSION_START_KEY);
+    }
+
+    static getSessionSeconds() {
+        const start = Number(localStorage.getItem(GameManager.SESSION_START_KEY));
+        if (!start) return null;
+        return Math.max(0, Math.floor((Date.now() - start) / 1000));
+    }
+
     static saveGameResult(sceneIndex, isCompleted, seconds = 0) {
         const savedGameResultData = localStorage.getItem('allGamesResult');
         let allGamesResult = savedGameResultData ? JSON.parse(savedGameResultData) : [
