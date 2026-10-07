@@ -458,9 +458,10 @@ export class QuestionPanel extends Phaser.GameObjects.Container {
 
         this.questions = contents;
 
+        this.questionBg = scene.add.image(0, 50, 'game1_q_bg').setVisible(false);
         this.contentImage = scene.add.image(0, 50, '').setDepth(200).setVisible(false);
         this.titleImage = scene.add.image(0, -340, '').setDepth(1099).setVisible(false);
-        this.add([this.contentImage, this.titleImage]);
+        this.add([this.questionBg, this.contentImage, this.titleImage]);
 
         this.nextBtn = new CustomButton(scene, 620, 30, 'next_button', 'next_button_click', () => {
             this.setPhase('answer');
@@ -487,10 +488,17 @@ export class QuestionPanel extends Phaser.GameObjects.Container {
 
     setPhase(phase) {
         this.phase = phase;
+        const q = this.questions[this.currentIndex];
         const paged = this.isPagedQuestion();
         const isQuestion = phase === 'question';
+        const bgKey = (q && q.bg) || 'game1_q_bg';
 
         this.contentImage.setVisible(!paged || isQuestion);
+        if (this.questionBg) {
+            const showBg = paged && !isQuestion && this.scene.textures.exists(bgKey);
+            if (showBg) this.questionBg.setTexture(bgKey);
+            this.questionBg.setVisible(showBg);
+        }
         this.setButtonVisible(this.nextBtn, paged && isQuestion);
         this.setButtonVisible(this.prevBtn, paged && !isQuestion);
         this.setButtonVisible(this.confirmBtn, !paged || !isQuestion);
@@ -574,6 +582,7 @@ export class QuestionPanel extends Phaser.GameObjects.Container {
     showAddOn(descriptionKey) {
         this.optionButtons.forEach(btn => btn.setVisible(false));
         this.contentImage.setVisible(false);
+        if (this.questionBg) this.questionBg.setVisible(false);
         this.confirmBtn.setVisible(false);
         if (this.nextBtn) this.nextBtn.setVisible(false);
         if (this.prevBtn) this.prevBtn.setVisible(false);

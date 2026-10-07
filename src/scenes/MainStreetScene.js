@@ -288,14 +288,14 @@ export class MainStreetScene extends Phaser.Scene {
         });
 
         this.bubbleTimers = [];
-        this.npcGameMap = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7 };
+        this.npcGameMap = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 6, 6: 5, 7: 7 };
         this.npcDialogue = {
             1: { street: ['npc1_bubble_1'], lock: [] },
             2: { street: ['npc2_bubble_1'], lock: [] },
             3: { street: ['npc3_bubble_1'], lock: [] },
             4: { street: ['npc4_bubble_1'], lock: ['npc4_bubble_reject', 'npc4_bubble_reject_02'] },
-            5: { street: ['npc5_bubble_1'], lock: ['npc5_bubble_reject', 'npc5_bubble_reject_02'] },
-            6: { street: ['npc6_bubble_1', 'npc6_bubble_2'], lock: ['npc6_bubble_reject', 'npc6_bubble_reject_02'] },
+            5: { street: ['npc6_bubble_1', 'npc6_bubble_2'], lock: ['npc6_bubble_reject', 'npc6_bubble_reject_02'] },
+            6: { street: ['npc5_bubble_1'], lock: ['npc5_bubble_reject', 'npc5_bubble_reject_02'] },
             7: { street: ['npc7_bubble_1'], lock: ['npc7_bubble_reject', 'npc7_bubble_reject_02'] }
         };
 

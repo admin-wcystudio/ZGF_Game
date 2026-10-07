@@ -146,7 +146,7 @@ export default class VoiceOverHelper {
         game7_npc_box_tryagain: 'game7_npc_box7'
     };
 
-    static NPC_TO_GAME = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7 };
+    static NPC_TO_GAME = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 6, 6: 5, 7: 7 };
 
     static preload(scene) {
         if (!scene._voLoadErrorBound) {

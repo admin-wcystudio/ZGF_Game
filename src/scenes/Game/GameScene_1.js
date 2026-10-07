@@ -37,6 +37,8 @@ export class GameScene_1 extends BaseGameScene {
         for (let i = 1; i <= 3; i++) {
             this.load.image(`game1_q${i}_title`, `${path}game1_q${i}_title.png`);
         }
+
+        this.load.image('game1_q_bg', `${path}game1_q_bg.png`);
     }
 
     create() {
