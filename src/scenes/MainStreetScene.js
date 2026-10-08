@@ -172,9 +172,9 @@ export class MainStreetScene extends Phaser.Scene {
         this.load.spritesheet('npc4_select', 'assets/images/MainStreet/NPCs/NPC4_select.png',
             { frameWidth: 193, frameHeight: 300 });
         this.load.spritesheet('npc5', 'assets/images/MainStreet/NPCs/NPC5.png',
-            { frameWidth: 251, frameHeight: 311 });
+            { frameWidth: 502, frameHeight: 623 });
         this.load.spritesheet('npc5_select', 'assets/images/MainStreet/NPCs/NPC5_select.png',
-            { frameWidth: 251, frameHeight: 311 });
+            { frameWidth: 502, frameHeight: 623 });
         this.load.spritesheet('npc6', 'assets/images/MainStreet/NPCs/NPC6.png',
             { frameWidth: 231, frameHeight: 361 });
         this.load.spritesheet('npc6_select', 'assets/images/MainStreet/NPCs/NPC6_select.png',
@@ -306,7 +306,7 @@ export class MainStreetScene extends Phaser.Scene {
         const n2 = NpcHelper.createNpc(this, 2, 1900, 650, 2, 'npc2', [], 6, 'npc2_anim');
         const n3 = NpcHelper.createNpc(this, 3, 3800, 650, 2, 'npc3', [], 6, 'npc3_anim');
         const n4 = NpcHelper.createNpc(this, 4, 4800, 650, 2, 'npc4', [], 6, 'npc4_anim');
-        const n5 = NpcHelper.createNpc(this, 5, 7000, 600, 2, 'npc5', [], 7, 'npc5_anim');
+        const n5 = NpcHelper.createNpc(this, 5, 7000, 600, 1, 'npc5', [], 7, 'npc5_anim');
         const n6 = NpcHelper.createNpc(this, 6, 7600, 650, 2, 'npc6', [], 16, 'npc6_anim');
         const n7 = NpcHelper.createNpcItem(this, 7, 6920, 350, 1, 'npc7', 'npc7_select', 6, []);
 
